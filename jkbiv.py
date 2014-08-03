@@ -58,9 +58,7 @@ class MainWindow(QtGui.QMainWindow):
         self.image_label.setStyleSheet("QLabel { background-color: #000; color: #eee}")
 #        self.image_label.setScaledContents(True) # 不要放這個
         self.image_label.setSizePolicy(QtGui.QSizePolicy.Ignored, QtGui.QSizePolicy.Ignored) # WTF?
-
-        self.setCentralWidget(self.image_label)
-        
+        self.image_label.setAlignment(QtCore.Qt.AlignCenter)
         
         self.setWindowTitle("jkbiv")
         self.setStyleSheet("QLabel { background-color: #000; color: #eee}")
