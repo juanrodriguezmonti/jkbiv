@@ -45,7 +45,7 @@ class ImageFileList(QtCore.QObject):
         self.imageList=images # [FIXME]如果當前目錄沒有任何圖片，就不要啟動app
  
 
-class MainWindow(QtGui.QMainWindow):
+class MainWindow(QtGui.QWidget):
     def __init__(self):
         super(MainWindow, self).__init__()
 
@@ -59,14 +59,20 @@ class MainWindow(QtGui.QMainWindow):
 #        self.image_label.setScaledContents(True) # 不要放這個
         self.image_label.setSizePolicy(QtGui.QSizePolicy.Ignored, QtGui.QSizePolicy.Ignored) # WTF?
         self.image_label.setAlignment(QtCore.Qt.AlignCenter)
+        layout = QtGui.QHBoxLayout()
+        layout.setMargin(0)
+        layout.addWidget(self.image_label)
+        
+        self.setLayout(layout)
+        
         
         self.setWindowTitle("jkbiv")
         self.setStyleSheet("QLabel { background-color: #000; color: #eee}")
         self.resize(500,400)
 
-        self.status_bar = QtGui.QStatusBar(self)
-        self.setStatusBar(self.status_bar)
-        self.updateStatusBar()
+#         self.status_bar = QtGui.QStatusBar(self)
+#         self.setStatusBar(self.status_bar)
+#         self.updateStatusBar()
 
         self.scaleNum = 1.0
         self.refreshImage()
