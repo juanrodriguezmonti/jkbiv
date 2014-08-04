@@ -81,6 +81,7 @@ class MainWindow(QtGui.QWidget):
         QtGui.QShortcut(QtGui.QKeySequence("Right"), self, self.nextImage)
         QtGui.QShortcut(QtGui.QKeySequence("Left"), self, self.prevImage)
         QtGui.QShortcut(QtGui.QKeySequence("s"), self, self.sortSwitcher)
+        QtGui.QShortcut(QtGui.QKeySequence("f"), self, self.toggleFullScreen)
 
     def resizeEvent(self, resizeEvent):
         self.refreshImage()
@@ -131,7 +132,12 @@ class MainWindow(QtGui.QWidget):
             self.sortByName()
         else:
             self.sortByTime()
-        
+
+    def toggleFullScreen(self):
+        if self.isFullScreen():
+            self.showNormal()
+        else:
+            self.showFullScreen()
 
 app = QtGui.QApplication(sys.argv)
 main_window = MainWindow()
