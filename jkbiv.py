@@ -52,16 +52,22 @@ class MainWindow(QtGui.QWidget):
         self.image_lst = ImageFileList()
 
         self.printer = QtGui.QPrinter()
-        self.scaleNum = 0.0
 
         self.image_label = QtGui.QLabel()
         self.image_label.setStyleSheet("QLabel { background-color: #000; color: #eee}")
 #        self.image_label.setScaledContents(True) # 不要放這個
 
         self.image_label.setAlignment(QtCore.Qt.AlignCenter)
-        layout = QtGui.QHBoxLayout()
+        
+        self.scroll_area = QtGui.QScrollArea()
+        self.scroll_area.setStyleSheet("QLabel { background-color: #000; color: #eee}")
+        self.scroll_area.setWidget(self.image_label)
+
+        self.scroll_area.setWidgetResizable(True) # Magic
+        layout = QtGui.QVBoxLayout()
         layout.setMargin(0)
-        layout.addWidget(self.image_label)
+        layout.setSpacing(0)
+        layout.addWidget(self.scroll_area)
         
         self.setLayout(layout)
         
@@ -91,19 +97,20 @@ class MainWindow(QtGui.QWidget):
         QtGui.QShortcut(QtGui.QKeySequence("Left"), self, self.prevImage)
         QtGui.QShortcut(QtGui.QKeySequence("s"), self, self.sortSwitcher)
         QtGui.QShortcut(QtGui.QKeySequence("f"), self, self.toggleFullScreen)
+        QtGui.QShortcut(QtGui.QKeySequence("="), self, self.zoomIn)
 
     def resizeEvent(self, resizeEvent): # Qt
+        # [FIXME]如果目前縮放模式不是fit to window，記得不要resize image_label
+#        self.image_label.resize(self.size())
         self.refreshImage()
         
     def refreshImage(self):
-#        image = QtGui.QImage(self.image_lst.imageList[self.image_lst.currentImage])
-#        scaledImage=image.scaled(self.image_label.size(), QtCore.Qt.KeepAspectRatio)
-#        self.image_label.setPixmap(QtGui.QPixmap.fromImage(image))
         image = QtGui.QPixmap(self.image_lst.imageList[self.image_lst.currentImage])
-        if image.width() < self.width() and image.height() < self.height():
+        if image.width() < self.scroll_area.width() and image.height() < self.scroll_area.height():
             self.image_label.setPixmap(image)
         else:
-            scaledImage=image.scaled(self.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+            scaledImage=image.scaled(self.scroll_area.size(),
+                                     QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
             self.image_label.setPixmap(scaledImage)
         # 記得更新title的檔名
 
@@ -170,6 +177,15 @@ class MainWindow(QtGui.QWidget):
         label.resize(x, y)
         label.show()
         QtCore.QTimer.singleShot(duration, lambda: label.hide())
+
+    def origianlSize(self):
+        self.scaleNum = 1
+        
+    def zoomIn(self):
+        self.scaleNum *= 1.1
+        self.image_label.resize(self.scaleNum * self.image_label.pixmap().size())
+        self.refreshImage()
+#    def scaleImage(self):
         
 app = QtGui.QApplication(sys.argv)
 main_window = MainWindow()
