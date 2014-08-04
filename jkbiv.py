@@ -64,13 +64,15 @@ class MainWindow(QtGui.QWidget):
         self.scroll_area.setWidget(self.image_label)
 
         self.scroll_area.setWidgetResizable(True) # Magic
+
+        self.scroll_area.setFrameShape(QtGui.QFrame.NoFrame) # Thanks for lzh~
+
         layout = QtGui.QVBoxLayout()
         layout.setMargin(0)
         layout.setSpacing(0)
         layout.addWidget(self.scroll_area)
         
         self.setLayout(layout)
-        
         
         self.setWindowTitle("jkbiv")
         self.setStyleSheet("QLabel { background-color: #000; color: #eee}")
