@@ -76,15 +76,25 @@ class MainWindow(QtGui.QWidget):
 
         self.scaleNum = 1.0
         self.refreshImage()
- 
+
+        self.notify_label =QtGui.QLabel("", self)
+        self.notify_label.setStyleSheet('''color:#fff;
+        background-color:rgba(0,0,0,100);
+        border:1px solid #fff;
+        border-radius:3px;
+        text-align:center;''')
+        self.notify_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.notify_label.hide()
+        
         QtGui.QShortcut(QtGui.QKeySequence("q"), self, self.close)
         QtGui.QShortcut(QtGui.QKeySequence("Right"), self, self.nextImage)
         QtGui.QShortcut(QtGui.QKeySequence("Left"), self, self.prevImage)
         QtGui.QShortcut(QtGui.QKeySequence("s"), self, self.sortSwitcher)
         QtGui.QShortcut(QtGui.QKeySequence("f"), self, self.toggleFullScreen)
 
-    def resizeEvent(self, resizeEvent):
+    def resizeEvent(self, resizeEvent): # Qt
         self.refreshImage()
+        
     def updateStatusBar(self):
         self.status_bar.showMessage(' | '.join([self.image_lst.sortBy]))
 
@@ -136,8 +146,23 @@ class MainWindow(QtGui.QWidget):
     def toggleFullScreen(self):
         if self.isFullScreen():
             self.showNormal()
+            self.sendNotify("Fullscreen off")
         else:
             self.showFullScreen()
+            self.sendNotify("Fullscreen on")
+
+    def paintEvent(self, event): # Qt
+        w = self.notify_label.width()
+        h = self.notify_label.height()
+
+        x = (self.rect().width()  - w)/2.0
+        y = (self.rect().height() - h)/2.0
+        self.notify_label.setGeometry(x,y,w,h)
+
+    def sendNotify(self, string):
+        self.notify_label.setText(string)
+        self.notify_label.show()
+        QtCore.QTimer.singleShot(3000, lambda: self.notify_label.hide())
 
 app = QtGui.QApplication(sys.argv)
 main_window = MainWindow()
