@@ -100,8 +100,11 @@ class MainWindow(QtGui.QWidget):
 #        scaledImage=image.scaled(self.image_label.size(), QtCore.Qt.KeepAspectRatio)
 #        self.image_label.setPixmap(QtGui.QPixmap.fromImage(image))
         image = QtGui.QPixmap(self.image_lst.imageList[self.image_lst.currentImage])
-        scaledImage=image.scaled(self.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
-        self.image_label.setPixmap(scaledImage)
+        if image.width() < self.width() and image.height() < self.height():
+            self.image_label.setPixmap(image)
+        else:
+            scaledImage=image.scaled(self.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+            self.image_label.setPixmap(scaledImage)
         # 記得更新title的檔名
 
     def nextImage(self):
