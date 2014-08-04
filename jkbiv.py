@@ -115,9 +115,9 @@ class MainWindow(QtGui.QWidget):
     def prevImage(self):
         if self.image_lst.currentImage == 0:
             self.image_lst.currentImage = len(self.image_lst.imageList) - 1
+            self.sendNotify("First document reached, continuing on last document.")
         else:
             self.image_lst.currentImage -= 1
-            self.sendNotify("First document reached, continuing on last document.")
         self.refreshImage()
 
     def sortByName(self):
@@ -158,7 +158,7 @@ class MainWindow(QtGui.QWidget):
         y = (self.rect().height() - h)/2.0
         self.notify_label.setGeometry(x,y,w,h)
 
-    def sendNotify(self, string, duration = 3000):
+    def sendNotify(self, string, duration = 2000):
         label = self.notify_label
         label.setText(string)
         label.adjustSize()
@@ -167,7 +167,7 @@ class MainWindow(QtGui.QWidget):
         label.resize(x, y)
         label.show()
         QtCore.QTimer.singleShot(duration, lambda: label.hide())
-
+        
 app = QtGui.QApplication(sys.argv)
 main_window = MainWindow()
 main_window.show()
