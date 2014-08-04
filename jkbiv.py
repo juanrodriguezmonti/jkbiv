@@ -57,7 +57,7 @@ class MainWindow(QtGui.QWidget):
         self.image_label = QtGui.QLabel()
         self.image_label.setStyleSheet("QLabel { background-color: #000; color: #eee}")
 #        self.image_label.setScaledContents(True) # 不要放這個
-        self.image_label.setSizePolicy(QtGui.QSizePolicy.Ignored, QtGui.QSizePolicy.Ignored) # WTF?
+
         self.image_label.setAlignment(QtCore.Qt.AlignCenter)
         layout = QtGui.QHBoxLayout()
         layout.setMargin(0)
@@ -95,9 +95,6 @@ class MainWindow(QtGui.QWidget):
     def resizeEvent(self, resizeEvent): # Qt
         self.refreshImage()
         
-    def updateStatusBar(self):
-        self.status_bar.showMessage(' | '.join([self.image_lst.sortBy]))
-
     def refreshImage(self):
 #        image = QtGui.QImage(self.image_lst.imageList[self.image_lst.currentImage])
 #        scaledImage=image.scaled(self.image_label.size(), QtCore.Qt.KeepAspectRatio)
@@ -110,6 +107,7 @@ class MainWindow(QtGui.QWidget):
     def nextImage(self):
         if 1 + self.image_lst.currentImage == len(self.image_lst.imageList):
             self.image_lst.currentImage = 0
+            self.sendNotify("Last document reached, continuing on first document.")
         else:
             self.image_lst.currentImage += 1
         self.refreshImage()
@@ -119,6 +117,7 @@ class MainWindow(QtGui.QWidget):
             self.image_lst.currentImage = len(self.image_lst.imageList) - 1
         else:
             self.image_lst.currentImage -= 1
+            self.sendNotify("First document reached, continuing on last document.")
         self.refreshImage()
 
     def sortByName(self):
@@ -128,14 +127,14 @@ class MainWindow(QtGui.QWidget):
         self.image_lst.sortBy='Name'
         self.image_lst.genImagesList()
         self.image_lst.currentImage = self.image_lst.imageList.index(filename)
-        self.updateStatusBar()
+        self.sendNotify("Sorting by Name")
 
     def sortByTime(self):
         filename=self.image_lst.imageList[self.image_lst.currentImage]
         self.image_lst.sortBy='Time'
         self.image_lst.genImagesList()
         self.image_lst.currentImage = self.image_lst.imageList.index(filename)
-        self.updateStatusBar()
+        self.sendNotify("Sorting by Time")
 
     def sortSwitcher(self):
         if self.image_lst.sortBy == 'Time':
@@ -159,10 +158,15 @@ class MainWindow(QtGui.QWidget):
         y = (self.rect().height() - h)/2.0
         self.notify_label.setGeometry(x,y,w,h)
 
-    def sendNotify(self, string):
-        self.notify_label.setText(string)
-        self.notify_label.show()
-        QtCore.QTimer.singleShot(3000, lambda: self.notify_label.hide())
+    def sendNotify(self, string, duration = 3000):
+        label = self.notify_label
+        label.setText(string)
+        label.adjustSize()
+        x = label.width() + 20
+        y = label.height() + 10
+        label.resize(x, y)
+        label.show()
+        QtCore.QTimer.singleShot(duration, lambda: label.hide())
 
 app = QtGui.QApplication(sys.argv)
 main_window = MainWindow()
