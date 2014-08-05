@@ -96,6 +96,7 @@ class MainWindow(QtGui.QWidget):
 
         self.scaleNum = 1.0
         self.zoomMode = 'fitToWindow'
+        self.rememberZoomMode = False
         self.refreshImage()
 
         QtGui.QShortcut(QtGui.QKeySequence("q"), self, self.close)
@@ -103,12 +104,15 @@ class MainWindow(QtGui.QWidget):
         QtGui.QShortcut(QtGui.QKeySequence("Left"), self, self.smartLeft)
         QtGui.QShortcut(QtGui.QKeySequence("Up"), self, self.smartUp)
         QtGui.QShortcut(QtGui.QKeySequence("Down"), self, self.smartDown)
+        QtGui.QShortcut(QtGui.QKeySequence("PgDown"), self, self.nextImage)
+        QtGui.QShortcut(QtGui.QKeySequence("PgUp"), self, self.prevImage)
         QtGui.QShortcut(QtGui.QKeySequence("s"), self, self.sortSwitcher)
         QtGui.QShortcut(QtGui.QKeySequence("f"), self, self.toggleFullScreen)
         QtGui.QShortcut(QtGui.QKeySequence("="), self, self.zoomIn)
         QtGui.QShortcut(QtGui.QKeySequence("-"), self, self.zoomOut)
         QtGui.QShortcut(QtGui.QKeySequence("1"), self, self.origianlSize)
         QtGui.QShortcut(QtGui.QKeySequence("w"), self, self.fitToWindow)
+        QtGui.QShortcut(QtGui.QKeySequence("r"), self, self.toggleRememberZoomMode)
         QtGui.QShortcut(QtGui.QKeySequence("Shift+Right"), self, self.scrollRight)
         QtGui.QShortcut(QtGui.QKeySequence("Shift+Left"), self, self.scrollLeft)
         QtGui.QShortcut(QtGui.QKeySequence("Shift+Up"), self, self.scrollUp)
@@ -121,6 +125,7 @@ class MainWindow(QtGui.QWidget):
 
     def refreshImage(self):
         self.image = QtGui.QPixmap(self.image_lst.imageList[self.image_lst.currentImage])
+
         if self.zoomMode == 'fitToWindow':
             if self.image.width() < self.scroll_area.width() and self.image.height() < self.scroll_area.height():
                 self.image_label.setPixmap(self.image)
@@ -161,6 +166,10 @@ class MainWindow(QtGui.QWidget):
         self.scaleNum *= 0.9
         self.sendNotify(self.scalePercentage(), 500)
         self.refreshImage()
+
+    def toggleRememberZoomMode(self):
+        self.rememberZoomMode = not(self.rememberZoomMode)
+        self.sendNotify("Remenber Zoom Mode" if self.rememberZoomMode else "Don't Remember Zoom Mode")
 
     def scrollRight(self, step = 20):
         bar=self.scroll_area.horizontalScrollBar()
@@ -214,6 +223,10 @@ class MainWindow(QtGui.QWidget):
             self.sendNotify("Last document reached, continuing on first document.")
         else:
             self.image_lst.currentImage += 1
+
+        if not(self.rememberZoomMode):
+            self.zoomMode = 'fitToWindow'
+
         self.refreshImage()
 
     def prevImage(self):
@@ -222,6 +235,10 @@ class MainWindow(QtGui.QWidget):
             self.sendNotify("First document reached, continuing on last document.")
         else:
             self.image_lst.currentImage -= 1
+
+        if not(self.rememberZoomMode):
+            self.zoomMode = 'fitToWindow'
+
         self.refreshImage()
 
     def sortByName(self):
