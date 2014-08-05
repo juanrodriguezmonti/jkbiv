@@ -21,7 +21,7 @@ class ImageFileList(QtCore.QObject):
         super(ImageFileList, self).__init__()
 
         self.sortBy='Name'
-        
+
         # if argv exist, set dirPath according to it. Else, use getcwd()
         if len(sys.argv) > 1 and os.path.isfile(sys.argv[1]):
             self._dirPath = os.path.dirname(os.path.realpath(sys.argv[1]))
@@ -41,9 +41,9 @@ class ImageFileList(QtCore.QObject):
             images.sort()
         elif self.sortBy == 'Time':
             images.sort(key=lambda x: os.path.getmtime(x))
-            
+
         self.imageList=images # [FIXME]如果當前目錄沒有任何圖片，就不要啟動app
- 
+
 
 class MainWindow(QtGui.QWidget):
     def __init__(self):
@@ -58,7 +58,7 @@ class MainWindow(QtGui.QWidget):
 #        self.image_label.setScaledContents(True) # 不要放這個
 
         self.image_label.setAlignment(QtCore.Qt.AlignCenter)
-        
+
         self.scroll_area = QtGui.QScrollArea()
         self.scroll_area.setStyleSheet("QLabel { background-color: #000; color: #eee}")
         self.scroll_area.setWidget(self.image_label)
@@ -73,9 +73,9 @@ class MainWindow(QtGui.QWidget):
         layout.setMargin(0)
         layout.setSpacing(0)
         layout.addWidget(self.scroll_area)
-        
+
         self.setLayout(layout)
-        
+
         self.setWindowTitle("jkbiv")
         self.setStyleSheet("QLabel { background-color: #000; color: #eee}")
         self.resize(500,400)
@@ -95,7 +95,7 @@ class MainWindow(QtGui.QWidget):
         self.scaleNum = 1.0
         self.zoomMode = 'fitToWindow'
         self.refreshImage()
-        
+
         QtGui.QShortcut(QtGui.QKeySequence("q"), self, self.close)
         QtGui.QShortcut(QtGui.QKeySequence("Right"), self, self.nextImage)
         QtGui.QShortcut(QtGui.QKeySequence("Left"), self, self.prevImage)
@@ -110,11 +110,16 @@ class MainWindow(QtGui.QWidget):
         # [FIXME]如果目前縮放模式不是fit to window，記得不要resize image_label
 #        self.image_label.resize(self.size())
         self.refreshImage()
-        
+
     def refreshImage(self):
         self.image = QtGui.QPixmap(self.image_lst.imageList[self.image_lst.currentImage])
         if self.zoomMode == 'fitToWindow':
-            self.fitToWindow()
+            if self.image.width() < self.scroll_area.width() and self.image.height() < self.scroll_area.height():
+                self.image_label.setPixmap(self.image)
+            else:
+                scaledImage = self.image.scaled(self.scroll_area.size(),
+                                                QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+                self.image_label.setPixmap(scaledImage)
         else:
             scaledImage = self.image.scaled(self.image.size() * self.scaleNum,
                                             QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
@@ -123,21 +128,16 @@ class MainWindow(QtGui.QWidget):
 
     def fitToWindow(self):
         self.zoomMode = 'fitToWindow'
-        if self.image.width() < self.scroll_area.width() and self.image.height() < self.scroll_area.height():
-            self.image_label.setPixmap(self.image)
-        else:
-            scaledImage = self.image.scaled(self.scroll_area.size(),
-                                     QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
-            self.image_label.setPixmap(scaledImage)
         self.scaleNum = self.image_label.width() / self.image.width() # useless/nonsense
         self.sendNotify("Fit to Window", 500)
-    
+        self.refreshImage()
+
     def origianlSize(self):
         self.zoomMode = 'free'
         self.scaleNum = 1
         self.sendNotify("Original Size", 500)
         self.refreshImage()
-        
+
     def zoomIn(self):
         self.zoomMode = 'free'
         self.scaleNum *= 1.1
@@ -149,7 +149,7 @@ class MainWindow(QtGui.QWidget):
         self.scaleNum *= 0.9
         self.sendNotify("{percent:.0%}".format(percent=self.scaleNum), 500)
         self.refreshImage()
-        
+
     def nextImage(self):
         if 1 + self.image_lst.currentImage == len(self.image_lst.imageList):
             self.image_lst.currentImage = 0
@@ -214,7 +214,7 @@ class MainWindow(QtGui.QWidget):
         label.show()
         QtCore.QTimer.singleShot(duration, lambda: label.hide())
 
-        
+
 app = QtGui.QApplication(sys.argv)
 main_window = MainWindow()
 main_window.show()
