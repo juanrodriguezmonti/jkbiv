@@ -68,6 +68,8 @@ class MainWindow(QtGui.QWidget):
         self.scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.scroll_area.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.scroll_area.setFrameShape(QtGui.QFrame.NoFrame) # Thanks for lzh~
+        self.scroll_area.horizontalScrollBar().setSingleStep(20)
+        self.scroll_area.verticalScrollBar().setSingleStep(20)
 
         layout = QtGui.QVBoxLayout()
         layout.setMargin(0)
@@ -105,6 +107,10 @@ class MainWindow(QtGui.QWidget):
         QtGui.QShortcut(QtGui.QKeySequence("-"), self, self.zoomOut)
         QtGui.QShortcut(QtGui.QKeySequence("1"), self, self.origianlSize)
         QtGui.QShortcut(QtGui.QKeySequence("w"), self, self.fitToWindow)
+        QtGui.QShortcut(QtGui.QKeySequence("Shift+Right"), self, self.scrollRight)
+        QtGui.QShortcut(QtGui.QKeySequence("Shift+Left"), self, self.scrollLeft)
+        QtGui.QShortcut(QtGui.QKeySequence("Shift+Up"), self, self.scrollUp)
+        QtGui.QShortcut(QtGui.QKeySequence("Shift+Down"), self, self.scrollDown)
 
     def resizeEvent(self, resizeEvent): # Qt
         # [FIXME]如果目前縮放模式不是fit to window，記得不要resize image_label
@@ -153,6 +159,22 @@ class MainWindow(QtGui.QWidget):
         self.scaleNum *= 0.9
         self.sendNotify(self.scalePercentage(), 500)
         self.refreshImage()
+
+    def scrollRight(self, step = 20):
+        bar=self.scroll_area.horizontalScrollBar()
+        bar.setValue(bar.value() + step)
+
+    def scrollLeft(self, step = 20):
+        bar=self.scroll_area.horizontalScrollBar()
+        bar.setValue(bar.value() - step)
+
+    def scrollUp(self, step = 20):
+        bar=self.scroll_area.verticalScrollBar()
+        bar.setValue(bar.value() - step)
+
+    def scrollDown(self, step = 20):
+        bar=self.scroll_area.verticalScrollBar()
+        bar.setValue(bar.value() + step)
 
     def nextImage(self):
         if 1 + self.image_lst.currentImage == len(self.image_lst.imageList):
