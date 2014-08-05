@@ -141,13 +141,13 @@ class MainWindow(QtGui.QWidget):
     def zoomIn(self):
         self.zoomMode = 'free'
         self.scaleNum *= 1.1
-        self.sendNotify(str(self.scaleNum), 500)
+        self.sendNotify("{percent:.0%}".format(percent=self.scaleNum), 500)
         self.refreshImage()
 
     def zoomOut(self):
         self.zoomMode = 'free'
         self.scaleNum *= 0.9
-        self.sendNotify(str(self.scaleNum), 500)
+        self.sendNotify("{percent:.0%}".format(percent=self.scaleNum), 500)
         self.refreshImage()
         
     def nextImage(self):
