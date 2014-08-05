@@ -58,6 +58,8 @@ class MainWindow(QtGui.QWidget):
                 self.setStyleSheet("QLabel { background-color: #000; color: #eee}")
                 self.setAlignment(QtCore.Qt.AlignCenter)
                 self.scrollAreaInstance = scrollAreaInstance
+                # desktop = QtGui.QDesktopWidget()
+                # self.desktopSize = desktop.availableGeometry(desktop.primaryScreen())
 
             def mousePressEvent(self, event):
                 self.__mouseOriginalX = None
@@ -65,20 +67,43 @@ class MainWindow(QtGui.QWidget):
                 if event.button() == QtCore.Qt.LeftButton:
                     self.__mouseOriginalX = event.globalX()
                     self.__mouseOriginalY = event.globalY()
-
                 super(ImageLabel, self).mousePressEvent(event)
 
+            def updateMouseOriginal(self):
+                self.__mouseOriginalX = self.cursor.pos().x()
+                self.__mouseOriginalY = self.cursor.pos().y()
+                self.currentX = self.cursor.pos().x()
+                self.currentY = self.cursor.pos().y()
+
             def mouseMoveEvent(self, event):
+                # Following magic make mouse infinitely drag~
+                self.cursor = QtGui.QCursor()
+                x = self.cursor.pos().x()
+                y = self.cursor.pos().y()
+                if x > DESKTOP_WIDTH - 2:
+                    self.cursor.setPos(0,y)
+                    self.updateMouseOriginal()
+                elif x < 1:
+                    self.cursor.setPos(DESKTOP_WIDTH, y)
+                    self.updateMouseOriginal()
+                elif y > DESKTOP_HEIGHT - 2:
+                    self.cursor.setPos(x, 0)
+                    self.updateMouseOriginal()
+                elif y < 1:
+                    self.cursor.setPos(x, DESKTOP_HEIGHT)
+                    self.updateMouseOriginal()
+                else:
+                    self.currentX = event.globalX()
+                    self.currentY = event.globalY()
+
                 if event.buttons() == QtCore.Qt.LeftButton:
-                    currentX = event.globalX()
-                    currentY = event.globalY()
                     barX = self.scrollAreaInstance.horizontalScrollBar()
                     barY = self.scrollAreaInstance.verticalScrollBar()
-                    barX.setValue(barX.value() - (currentX - self.__mouseOriginalX))
-                    barY.setValue(barY.value() - (currentY - self.__mouseOriginalY))
+                    barX.setValue(barX.value() - (self.currentX - self.__mouseOriginalX))
+                    barY.setValue(barY.value() - (self.currentY - self.__mouseOriginalY))
 
-                    self.__mouseOriginalX = currentX
-                    self.__mouseOriginalY = currentY
+                    self.__mouseOriginalX = self.currentX
+                    self.__mouseOriginalY = self.currentY
 
                 super(ImageLabel, self).mousePressEvent(event)
 
@@ -317,6 +342,8 @@ class MainWindow(QtGui.QWidget):
 
 
 app = QtGui.QApplication(sys.argv)
+DESKTOP_HEIGHT = app.desktop().height()
+DESKTOP_WIDTH = app.desktop().width()
 main_window = MainWindow()
 main_window.show()
 app.exec_()
