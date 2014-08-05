@@ -50,16 +50,41 @@ class MainWindow(QtGui.QWidget):
         super(MainWindow, self).__init__()
 
         self.image_lst = ImageFileList()
-
         self.printer = QtGui.QPrinter()
 
-        self.image_label = QtGui.QLabel()
-        self.image_label.setStyleSheet("QLabel { background-color: #000; color: #eee}")
-#        self.image_label.setScaledContents(True) # 不要放這個
+        class ImageLabel(QtGui.QLabel):
+            def __init__(self, scrollAreaInstance):
+                super(ImageLabel, self).__init__()
+                self.setStyleSheet("QLabel { background-color: #000; color: #eee}")
+                self.setAlignment(QtCore.Qt.AlignCenter)
+                self.scrollAreaInstance = scrollAreaInstance
 
-        self.image_label.setAlignment(QtCore.Qt.AlignCenter)
+            def mousePressEvent(self, event):
+                self.__mouseOriginalX = None
+                self.__mouseOriginalY = None
+                if event.button() == QtCore.Qt.LeftButton:
+                    self.__mouseOriginalX = event.globalX()
+                    self.__mouseOriginalY = event.globalY()
+
+                super(ImageLabel, self).mousePressEvent(event)
+
+            def mouseMoveEvent(self, event):
+                if event.buttons() == QtCore.Qt.LeftButton:
+                    currentX = event.globalX()
+                    currentY = event.globalY()
+                    barX = self.scrollAreaInstance.horizontalScrollBar()
+                    barY = self.scrollAreaInstance.verticalScrollBar()
+                    barX.setValue(barX.value() - (currentX - self.__mouseOriginalX))
+                    barY.setValue(barY.value() - (currentY - self.__mouseOriginalY))
+
+                    self.__mouseOriginalX = currentX
+                    self.__mouseOriginalY = currentY
+
+                super(ImageLabel, self).mousePressEvent(event)
+
 
         self.scroll_area = QtGui.QScrollArea()
+        self.image_label = ImageLabel(self.scroll_area)
         self.scroll_area.setStyleSheet("QLabel { background-color: #000; color: #eee}")
         self.scroll_area.setWidget(self.image_label)
 
@@ -117,6 +142,7 @@ class MainWindow(QtGui.QWidget):
         QtGui.QShortcut(QtGui.QKeySequence("Shift+Left"), self, self.scrollLeft)
         QtGui.QShortcut(QtGui.QKeySequence("Shift+Up"), self, self.scrollUp)
         QtGui.QShortcut(QtGui.QKeySequence("Shift+Down"), self, self.scrollDown)
+
 
     def resizeEvent(self, resizeEvent): # Qt
         # [FIXME]如果目前縮放模式不是fit to window，記得不要resize image_label
