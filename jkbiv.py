@@ -116,38 +116,42 @@ class MainWindow(QtGui.QWidget):
         if self.zoomMode == 'fitToWindow':
             if self.image.width() < self.scroll_area.width() and self.image.height() < self.scroll_area.height():
                 self.image_label.setPixmap(self.image)
+                self.scaledImage = self.image
             else:
-                scaledImage = self.image.scaled(self.scroll_area.size(),
+                self.scaledImage = self.image.scaled(self.scroll_area.size(),
                                                 QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
-                self.image_label.setPixmap(scaledImage)
-        else:
-            scaledImage = self.image.scaled(self.image.size() * self.scaleNum,
+                self.image_label.setPixmap(self.scaledImage)
+        else: # self.zoomMode == 'free'
+            self.scaledImage = self.image.scaled(self.image.size() * self.scaleNum,
                                             QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
-            self.image_label.setPixmap(scaledImage)
+            self.image_label.setPixmap(self.scaledImage)
+        self.scaleNum = self.scaledImage.width() / self.image.width()
         # 記得更新title的檔名
+
+    def scalePercentage(self):
+        return "{percent:.0%}".format(percent=self.scaleNum)
 
     def fitToWindow(self):
         self.zoomMode = 'fitToWindow'
-        self.scaleNum = self.image_label.width() / self.image.width() # useless/nonsense
-        self.sendNotify("Fit to Window", 500)
+        self.sendNotify("Fit to Window (%s)" % self.scalePercentage(), 500)
         self.refreshImage()
 
     def origianlSize(self):
         self.zoomMode = 'free'
         self.scaleNum = 1
-        self.sendNotify("Original Size", 500)
+        self.sendNotify("Original Size (100%)", 500)
         self.refreshImage()
 
     def zoomIn(self):
         self.zoomMode = 'free'
         self.scaleNum *= 1.1
-        self.sendNotify("{percent:.0%}".format(percent=self.scaleNum), 500)
+        self.sendNotify(self.scalePercentage(), 500)
         self.refreshImage()
 
     def zoomOut(self):
         self.zoomMode = 'free'
         self.scaleNum *= 0.9
-        self.sendNotify("{percent:.0%}".format(percent=self.scaleNum), 500)
+        self.sendNotify(self.scalePercentage(), 500)
         self.refreshImage()
 
     def nextImage(self):
