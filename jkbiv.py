@@ -99,8 +99,10 @@ class MainWindow(QtGui.QWidget):
         self.refreshImage()
 
         QtGui.QShortcut(QtGui.QKeySequence("q"), self, self.close)
-        QtGui.QShortcut(QtGui.QKeySequence("Right"), self, self.nextImage)
-        QtGui.QShortcut(QtGui.QKeySequence("Left"), self, self.prevImage)
+        QtGui.QShortcut(QtGui.QKeySequence("Right"), self, self.smartRight)
+        QtGui.QShortcut(QtGui.QKeySequence("Left"), self, self.smartLeft)
+        QtGui.QShortcut(QtGui.QKeySequence("Up"), self, self.smartUp)
+        QtGui.QShortcut(QtGui.QKeySequence("Down"), self, self.smartDown)
         QtGui.QShortcut(QtGui.QKeySequence("s"), self, self.sortSwitcher)
         QtGui.QShortcut(QtGui.QKeySequence("f"), self, self.toggleFullScreen)
         QtGui.QShortcut(QtGui.QKeySequence("="), self, self.zoomIn)
@@ -175,6 +177,36 @@ class MainWindow(QtGui.QWidget):
     def scrollDown(self, step = 20):
         bar=self.scroll_area.verticalScrollBar()
         bar.setValue(bar.value() + step)
+
+    def ifScaledImageIsSmall(self):
+        if self.scaledImage.height() < self.scroll_area.height() + 2 and self.scaledImage.width() < self.scroll_area.width() + 2:
+            return True
+        else:
+            return False
+
+    def smartRight(self):
+        if self.ifScaledImageIsSmall():
+            self.nextImage()
+        else:
+            self.scrollRight()
+
+    def smartLeft(self):
+        if self.ifScaledImageIsSmall():
+            self.prevImage()
+        else:
+            self.scrollLeft()
+
+    def smartUp(self):
+        if self.ifScaledImageIsSmall():
+            self.prevImage()
+        else:
+            self.scrollUp()
+
+    def smartDown(self):
+        if self.ifScaledImageIsSmall():
+            self.nextImage()
+        else:
+            self.scrollDown()
 
     def nextImage(self):
         if 1 + self.image_lst.currentImage == len(self.image_lst.imageList):
