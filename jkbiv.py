@@ -65,6 +65,8 @@ class MainWindow(QtGui.QWidget):
 
         self.scroll_area.setWidgetResizable(True) # Magic
 
+        self.scroll_area.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.scroll_area.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.scroll_area.setFrameShape(QtGui.QFrame.NoFrame) # Thanks for lzh~
 
         layout = QtGui.QVBoxLayout()
@@ -81,10 +83,6 @@ class MainWindow(QtGui.QWidget):
 #         self.status_bar = QtGui.QStatusBar(self)
 #         self.setStatusBar(self.status_bar)
 #         self.updateStatusBar()
-
-        self.scaleNum = 1.0
-        self.refreshImage()
-
         self.notify_label =QtGui.QLabel("", self)
         self.notify_label.setStyleSheet('''color:#fff;
         background-color:rgba(0,0,0,100);
@@ -93,6 +91,10 @@ class MainWindow(QtGui.QWidget):
         text-align:center;''')
         self.notify_label.setAlignment(QtCore.Qt.AlignCenter)
         self.notify_label.hide()
+
+        self.scaleNum = 1.0
+        self.zoomMode = 'fitToWindow'
+        self.refreshImage()
         
         QtGui.QShortcut(QtGui.QKeySequence("q"), self, self.close)
         QtGui.QShortcut(QtGui.QKeySequence("Right"), self, self.nextImage)
@@ -100,6 +102,9 @@ class MainWindow(QtGui.QWidget):
         QtGui.QShortcut(QtGui.QKeySequence("s"), self, self.sortSwitcher)
         QtGui.QShortcut(QtGui.QKeySequence("f"), self, self.toggleFullScreen)
         QtGui.QShortcut(QtGui.QKeySequence("="), self, self.zoomIn)
+        QtGui.QShortcut(QtGui.QKeySequence("-"), self, self.zoomOut)
+        QtGui.QShortcut(QtGui.QKeySequence("1"), self, self.origianlSize)
+        QtGui.QShortcut(QtGui.QKeySequence("w"), self, self.fitToWindow)
 
     def resizeEvent(self, resizeEvent): # Qt
         # [FIXME]如果目前縮放模式不是fit to window，記得不要resize image_label
@@ -107,15 +112,44 @@ class MainWindow(QtGui.QWidget):
         self.refreshImage()
         
     def refreshImage(self):
-        image = QtGui.QPixmap(self.image_lst.imageList[self.image_lst.currentImage])
-        if image.width() < self.scroll_area.width() and image.height() < self.scroll_area.height():
-            self.image_label.setPixmap(image)
+        self.image = QtGui.QPixmap(self.image_lst.imageList[self.image_lst.currentImage])
+        if self.zoomMode == 'fitToWindow':
+            self.fitToWindow()
         else:
-            scaledImage=image.scaled(self.scroll_area.size(),
-                                     QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+            scaledImage = self.image.scaled(self.image.size() * self.scaleNum,
+                                            QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
             self.image_label.setPixmap(scaledImage)
         # 記得更新title的檔名
 
+    def fitToWindow(self):
+        self.zoomMode = 'fitToWindow'
+        if self.image.width() < self.scroll_area.width() and self.image.height() < self.scroll_area.height():
+            self.image_label.setPixmap(self.image)
+        else:
+            scaledImage = self.image.scaled(self.scroll_area.size(),
+                                     QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+            self.image_label.setPixmap(scaledImage)
+        self.scaleNum = self.image_label.width() / self.image.width() # useless/nonsense
+        self.sendNotify("Fit to Window", 500)
+    
+    def origianlSize(self):
+        self.zoomMode = 'free'
+        self.scaleNum = 1
+        self.sendNotify("Original Size", 500)
+        self.refreshImage()
+        
+    def zoomIn(self):
+        self.zoomMode = 'free'
+        self.scaleNum *= 1.1
+        self.sendNotify(str(self.scaleNum), 500)
+        self.refreshImage()
+
+    def zoomOut(self):
+        self.zoomMode = 'free'
+        self.scaleNum *= 0.9
+        self.sendNotify(str(self.scaleNum), 500)
+        self.refreshImage()
+        
     def nextImage(self):
         if 1 + self.image_lst.currentImage == len(self.image_lst.imageList):
             self.image_lst.currentImage = 0
@@ -180,14 +214,6 @@ class MainWindow(QtGui.QWidget):
         label.show()
         QtCore.QTimer.singleShot(duration, lambda: label.hide())
 
-    def origianlSize(self):
-        self.scaleNum = 1
-        
-    def zoomIn(self):
-        self.scaleNum *= 1.1
-        self.image_label.resize(self.scaleNum * self.image_label.pixmap().size())
-        self.refreshImage()
-#    def scaleImage(self):
         
 app = QtGui.QApplication(sys.argv)
 main_window = MainWindow()
