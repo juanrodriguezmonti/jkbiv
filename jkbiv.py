@@ -155,6 +155,7 @@ class MainWindow(QtGui.QWidget):
         self.scaleNum = 1.0
         self.zoomMode = 'fitToWindow'
         self.rememberZoomMode = False
+        self.loadImageFile()
         self.refreshImage()
 
         QtGui.QShortcut(QtGui.QKeySequence("q"), self, self.close)
@@ -182,9 +183,11 @@ class MainWindow(QtGui.QWidget):
 #        self.image_label.resize(self.size())
         self.refreshImage()
 
-    def refreshImage(self):
+    def loadImageFile(self):
         self.filePath = self.image_lst.imageList[self.image_lst.currentImage]
         self.image = QtGui.QPixmap(self.filePath)
+
+    def refreshImage(self):
         if self.zoomMode == 'fitToWindow':
             if self.image.width() < self.scroll_area.width() and self.image.height() < self.scroll_area.height():
                 self.image_label.setPixmap(self.image)
@@ -301,6 +304,7 @@ class MainWindow(QtGui.QWidget):
         if not(self.rememberZoomMode):
             self.zoomMode = 'fitToWindow'
 
+        self.loadImageFile()
         self.refreshImage()
 
     def prevImage(self):
@@ -313,6 +317,7 @@ class MainWindow(QtGui.QWidget):
         if not(self.rememberZoomMode):
             self.zoomMode = 'fitToWindow'
 
+        self.loadImageFile()
         self.refreshImage()
 
     def sortByName(self):
