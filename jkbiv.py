@@ -200,6 +200,21 @@ class MainWindow(QtGui.QWidget):
         self.scaleNum = self.scaledImage.width() / self.image.width()
         # 記得更新title的檔名
 
+        ### Information Label
+        self.info_label.setText(
+'''{}
+{} x {}'''\
+        .format(os.path.relpath(self.filePath),
+                self.image.width(),
+                self.image.height()))
+        self.info_label.adjustSize()
+        w=self.width()
+        h=self.info_label.height()
+        x=0
+        y=self.rect().height() - h
+        self.info_label.setGeometry(x,y,w,h)
+
+
     def scalePercentage(self):
         return "{percent:.0%}".format(percent=self.scaleNum)
 
@@ -330,8 +345,13 @@ class MainWindow(QtGui.QWidget):
             self.showFullScreen()
             self.sendNotify("Fullscreen on")
 
-    def paintEvent(self, event): # Qt
-        # Notification Label position updating
+#    def paintEvent(self, event): # Qt
+
+    def sendNotify(self, string, duration = 2000):
+        label = self.notify_label
+        label.setText(string)
+        label.adjustSize()
+        ### Update notification label position
         w = self.notify_label.width()
         h = self.notify_label.height()
 
@@ -339,24 +359,6 @@ class MainWindow(QtGui.QWidget):
         y = (self.rect().height() - h)/2.0
         self.notify_label.setGeometry(x,y,w,h)
 
-        # Information Label
-        self.info_label.setText(
-'''{}
-{} x {}'''\
-        .format(os.path.relpath(self.filePath),
-                self.image.width(),
-                self.image.height()))
-        self.info_label.adjustSize()
-        w=self.width()
-        h=self.info_label.height()
-        x=0
-        y=self.rect().height() - h
-        self.info_label.setGeometry(x,y,w,h)
-
-    def sendNotify(self, string, duration = 2000):
-        label = self.notify_label
-        label.setText(string)
-        label.adjustSize()
         label.show()
         QtCore.QTimer.singleShot(duration, lambda: label.hide())
 
