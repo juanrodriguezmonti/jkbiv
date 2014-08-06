@@ -140,9 +140,17 @@ class MainWindow(QtGui.QWidget):
         background-color:rgba(0,0,0,100);
         border:1px solid #fff;
         border-radius:3px;
+        padding:5px;
         text-align:center;''')
         self.notify_label.setAlignment(QtCore.Qt.AlignCenter)
         self.notify_label.hide()
+
+        self.info_label = QtGui.QLabel("",self)
+        self.info_label.setStyleSheet('''color:#fff;
+        background-color:rgba(0,0,0,100);
+        text-align:left;
+        padding:10px;''')
+        
 
         self.scaleNum = 1.0
         self.zoomMode = 'fitToWindow'
@@ -175,8 +183,8 @@ class MainWindow(QtGui.QWidget):
         self.refreshImage()
 
     def refreshImage(self):
-        self.image = QtGui.QPixmap(self.image_lst.imageList[self.image_lst.currentImage])
-
+        self.filePath = self.image_lst.imageList[self.image_lst.currentImage]
+        self.image = QtGui.QPixmap(self.filePath)
         if self.zoomMode == 'fitToWindow':
             if self.image.width() < self.scroll_area.width() and self.image.height() < self.scroll_area.height():
                 self.image_label.setPixmap(self.image)
@@ -323,6 +331,7 @@ class MainWindow(QtGui.QWidget):
             self.sendNotify("Fullscreen on")
 
     def paintEvent(self, event): # Qt
+        # Notification Label position updating
         w = self.notify_label.width()
         h = self.notify_label.height()
 
@@ -330,15 +339,30 @@ class MainWindow(QtGui.QWidget):
         y = (self.rect().height() - h)/2.0
         self.notify_label.setGeometry(x,y,w,h)
 
+        # Information Label
+        self.info_label.setText(
+'''{}
+{} x {}'''\
+        .format(os.path.relpath(self.filePath),
+                self.image.width(),
+                self.image.height()))
+        self.info_label.adjustSize()
+        w=self.width()
+        h=self.info_label.height()
+        x=0
+        y=self.rect().height() - h
+        self.info_label.setGeometry(x,y,w,h)
+
     def sendNotify(self, string, duration = 2000):
         label = self.notify_label
         label.setText(string)
         label.adjustSize()
-        x = label.width() + 20
-        y = label.height() + 10
-        label.resize(x, y)
         label.show()
         QtCore.QTimer.singleShot(duration, lambda: label.hide())
+
+#    def updateInfoLabel(self):
+        
+        
 
 
 app = QtGui.QApplication(sys.argv)
