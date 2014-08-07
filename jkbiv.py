@@ -38,7 +38,7 @@ class ImageFileList(QtCore.QObject):
             pattern=os.path.join(self._dirPath, "*.%s" % extension)
             images.extend(glob.glob(pattern))
         if self.sortBy == 'Name':
-            images.sort()
+            images.sort(key=str.lower)
         elif self.sortBy == 'Time':
             images.sort(key=lambda x: os.path.getmtime(x))
 
