@@ -146,12 +146,15 @@ class MainWindow(QtGui.QWidget):
         self.notify_label.hide()
 
         self.info_label = QtGui.QLabel("",self)
+        self.info_label.setTextFormat(QtCore.Qt.RichText)
         self.info_label.setStyleSheet('''color:#fff;
         background-color:rgba(0,0,0,100);
         text-align:left;
         padding:10px;''')
+        self.ifShowInfoLabels=True
+        self.ifShowStatusLabels=True
+        self.info_label.hide()
         
-
         self.scaleNum = 1.0
         self.zoomMode = 'fitToWindow'
         self.rememberZoomMode = False
@@ -159,6 +162,7 @@ class MainWindow(QtGui.QWidget):
         self.refreshImage()
 
         QtGui.QShortcut(QtGui.QKeySequence("q"), self, self.close)
+        QtGui.QShortcut(QtGui.QKeySequence("Ctrl+x Ctrl+c"), self, self.close)
         QtGui.QShortcut(QtGui.QKeySequence("Right"), self, self.smartRight)
         QtGui.QShortcut(QtGui.QKeySequence("Left"), self, self.smartLeft)
         QtGui.QShortcut(QtGui.QKeySequence("Up"), self, self.smartUp)
@@ -176,6 +180,9 @@ class MainWindow(QtGui.QWidget):
         QtGui.QShortcut(QtGui.QKeySequence("Shift+Left"), self, self.scrollLeft)
         QtGui.QShortcut(QtGui.QKeySequence("Shift+Up"), self, self.scrollUp)
         QtGui.QShortcut(QtGui.QKeySequence("Shift+Down"), self, self.scrollDown)
+        QtGui.QShortcut(QtGui.QKeySequence("i"), self, self.toggleInfoLabels)
+        QtGui.QShortcut(QtGui.QKeySequence("Shift+i"), self, self.toggleStatusLabels)
+
 
 
     def resizeEvent(self, resizeEvent): # Qt
@@ -202,21 +209,37 @@ class MainWindow(QtGui.QWidget):
             self.image_label.setPixmap(self.scaledImage)
         self.scaleNum = self.scaledImage.width() / self.image.width()
         # 記得更新title的檔名
+        self.updateInfoLabels()
 
+    def updateInfoLabels(self):
         ### Information Label
-        self.info_label.setText(
-'''{}
-{} x {}'''\
-        .format(os.path.relpath(self.filePath),
-                self.image.width(),
-                self.image.height()))
-        self.info_label.adjustSize()
-        w=self.width()
-        h=self.info_label.height()
-        x=0
-        y=self.rect().height() - h
-        self.info_label.setGeometry(x,y,w,h)
+        if self.ifShowInfoLabels:
+            self.info_label.setText(
+                '''{}<br>
+                {} x {}
+                {}'''\
+            .format(os.path.relpath(self.filePath),
+                    self.image.width(),
+                    self.image.height(),
+                    self.genStatusLabels()))
+            self.info_label.adjustSize()
+            w=self.width()
+            h=self.info_label.height()
+            x=0
+            y=self.rect().height() - h
+            self.info_label.setGeometry(x,y,w,h)
+            self.info_label.show()
+        else:
+            self.info_label.hide()
 
+    def toggleInfoLabels(self):
+        self.ifShowInfoLabels = not(self.ifShowInfoLabels)
+        self.updateInfoLabels()
+
+
+    def toggleStatusLabels(self):
+        self.ifShowStatusLabels = not(self.ifShowStatusLabels)
+        self.updateInfoLabels()
 
     def scalePercentage(self):
         return "{percent:.0%}".format(percent=self.scaleNum)
@@ -246,8 +269,9 @@ class MainWindow(QtGui.QWidget):
 
     def toggleRememberZoomMode(self):
         self.rememberZoomMode = not(self.rememberZoomMode)
-        self.sendNotify("Remenber Zoom Mode" if self.rememberZoomMode else "Don't Remember Zoom Mode")
-
+        self.sendNotify("Remenber Zoom Mode" if self.rememberZoomMode else "Always Fit to Window")
+        self.updateInfoLabels()
+        
     def scrollRight(self, step = 20):
         bar=self.scroll_area.horizontalScrollBar()
         bar.setValue(bar.value() + step)
@@ -328,6 +352,7 @@ class MainWindow(QtGui.QWidget):
         self.image_lst.genImagesList()
         self.image_lst.currentImage = self.image_lst.imageList.index(filename)
         self.sendNotify("Sorting by Name")
+        self.updateInfoLabels()
 
     def sortByTime(self):
         filename=self.image_lst.imageList[self.image_lst.currentImage]
@@ -335,6 +360,7 @@ class MainWindow(QtGui.QWidget):
         self.image_lst.genImagesList()
         self.image_lst.currentImage = self.image_lst.imageList.index(filename)
         self.sendNotify("Sorting by Time")
+        self.updateInfoLabels()
 
     def sortSwitcher(self):
         if self.image_lst.sortBy == 'Time':
@@ -367,8 +393,37 @@ class MainWindow(QtGui.QWidget):
         label.show()
         QtCore.QTimer.singleShot(duration, lambda: label.hide())
 
-#    def updateInfoLabel(self):
-        
+    def genStatusLabels(self):
+        if self.ifShowStatusLabels:
+            if self.image_lst.sortBy == "Name":
+                sort_by=("Name", "#005f87", "#c3c9f8")
+            else:
+                sort_by=("Time", "#a40000", "#ffafaf")
+    
+            if self.zoomMode == "fitToWindow":
+                zoom_mode=("Fit", "#fff", "#555")
+            elif self.scaleNum == 1:
+                zoom_mode=("1:1", "#fff", "#555")
+            else:
+                zoom_mode=("Free", "#fff", "#555")
+    
+            if self.rememberZoomMode:
+                remember=("R", "#875f00", "#ffd700")
+            else:
+                remember=None
+    
+            labels=[]
+            for l in [sort_by, zoom_mode, remember]:
+                if l is not None:
+                    labels = labels + ['''<span style='color:{0};
+                    background-color:{1};
+                    padding:15px;
+                    white-space:pre;'> {2} </span>
+                    '''.format(l[1],l[2],l[0])]
+    
+            return "<div align=right>" + " ".join(labels) + "</div>"
+        else:
+            return ""
         
 
 
