@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-import sys, os, glob
+import sys, os, glob, importlib.machinery
+
+config_loader=importlib.machinery.SourceFileLoader("configFile", os.path.expanduser("~/.config/jkbivrc.py"))
+CONFIG = config_loader.load_module("configFile")
 
 # try:
 #         from PySide import QtCore, QtGui
@@ -8,6 +11,11 @@ from PyQt4 import QtCore, QtGui
 QtCore.Slot=QtCore.pyqtSlot
 QtCore.Signal=QtCore.pyqtSignal
 QtCore.Property=QtCore.pyqtProperty
+
+
+# Mouse wheel behavior
+mouseWheelBehavior=CONFIG.mouseWheelBehavior
+
 
 def genSupportedExtensionList():
     formats = QtGui.QImageReader().supportedImageFormats()
@@ -20,7 +28,7 @@ class ImageFileList(QtCore.QObject):
     def __init__(self):
         super(ImageFileList, self).__init__()
 
-        self.sortBy='Name'
+        self.sortBy=CONFIG.sortBy
 
         # if argv exist, set dirPath according to it. Else, use getcwd()
         if len(sys.argv) > 1 and os.path.isfile(sys.argv[1]):
@@ -151,43 +159,25 @@ class MainWindow(QtGui.QWidget):
         background-color:rgba(0,0,0,100);
         text-align:left;
         padding:10px;''')
-        self.ifShowInfoLabels=True
-        self.ifShowStatusLabels=True
+        self.ifShowInfoLabels=CONFIG.ifShowInfoLabels
+        self.ifShowStatusLabels=CONFIG.ifShowStatusLabels
         self.info_label.hide()
         
         self.scaleNum = 1.0
         self.zoomMode = 'fitToWindow'
-        self.rememberZoomMode = False
+        self.rememberZoomMode = CONFIG.rememberZoomMode
         self.loadImageFile()
         self.refreshImage()
 
-        QtGui.QShortcut(QtGui.QKeySequence("q"), self, self.close)
-        QtGui.QShortcut(QtGui.QKeySequence("Ctrl+x Ctrl+c"), self, self.close)
-        QtGui.QShortcut(QtGui.QKeySequence("Right"), self, self.smartRight)
-        QtGui.QShortcut(QtGui.QKeySequence("Left"), self, self.smartLeft)
-        QtGui.QShortcut(QtGui.QKeySequence("Up"), self, self.smartUp)
-        QtGui.QShortcut(QtGui.QKeySequence("Down"), self, self.smartDown)
-        QtGui.QShortcut(QtGui.QKeySequence("PgDown"), self, self.nextImage)
-        QtGui.QShortcut(QtGui.QKeySequence("PgUp"), self, self.prevImage)
-        QtGui.QShortcut(QtGui.QKeySequence("s"), self, self.sortSwitcher)
-        QtGui.QShortcut(QtGui.QKeySequence("f"), self, self.toggleFullScreen)
-        QtGui.QShortcut(QtGui.QKeySequence("="), self, self.zoomIn)
-        QtGui.QShortcut(QtGui.QKeySequence("-"), self, self.zoomOut)
-        QtGui.QShortcut(QtGui.QKeySequence("1"), self, self.origianlSize)
-        QtGui.QShortcut(QtGui.QKeySequence("w"), self, self.fitToWindow)
-        QtGui.QShortcut(QtGui.QKeySequence("r"), self, self.toggleRememberZoomMode)
-        QtGui.QShortcut(QtGui.QKeySequence("Shift+Right"), self, self.scrollRight)
-        QtGui.QShortcut(QtGui.QKeySequence("Shift+Left"), self, self.scrollLeft)
-        QtGui.QShortcut(QtGui.QKeySequence("Shift+Up"), self, self.scrollUp)
-        QtGui.QShortcut(QtGui.QKeySequence("Shift+Down"), self, self.scrollDown)
-        QtGui.QShortcut(QtGui.QKeySequence("i"), self, self.toggleInfoLabels)
-        QtGui.QShortcut(QtGui.QKeySequence("Shift+i"), self, self.toggleStatusLabels)
+        # Key-bindings
+        for k in CONFIG.keys:
+            QtGui.QShortcut(QtGui.QKeySequence(k[0]), self, eval("self." + k[1]))
 
 
 
     def resizeEvent(self, resizeEvent): # Qt
         # [FIXME]如果目前縮放模式不是fit to window，記得不要resize image_label
-#        self.image_label.resize(self.size())
+        #        self.image_label.resize(self.size())
         self.refreshImage()
 
     def loadImageFile(self):
@@ -371,10 +361,10 @@ class MainWindow(QtGui.QWidget):
     def toggleFullScreen(self):
         if self.isFullScreen():
             self.showNormal()
-            self.sendNotify("Fullscreen off")
+            self.sendNotify("Fullscreen Off")
         else:
             self.showFullScreen()
-            self.sendNotify("Fullscreen on")
+            self.sendNotify("Fullscreen On")
 
 #    def paintEvent(self, event): # Qt
 
