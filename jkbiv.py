@@ -182,7 +182,6 @@ class MainWindow(QtGui.QWidget):
         self.zoomMode = 'fitToWindow'
         self.rememberZoomMode = CONFIG.rememberZoomMode
         self.loadImageFile()
-        self.refreshImage()
 
         # Key-bindings
         for k in CONFIG.keys:
@@ -200,6 +199,7 @@ class MainWindow(QtGui.QWidget):
         self.fileName = os.path.relpath(self.filePath)
         self.image = QtGui.QPixmap(self.filePath)
         self.imageResolution = "{} x {}".format(self.image.width(), self.image.height())
+        self.refreshImage()
 
     def refreshImage(self):
         if self.zoomMode == 'fitToWindow':
@@ -335,7 +335,6 @@ class MainWindow(QtGui.QWidget):
             self.zoomMode = 'fitToWindow'
 
         self.loadImageFile()
-        self.refreshImage()
 
     def prevImage(self):
         if self.image_lst.currentImage == 0:
@@ -348,7 +347,6 @@ class MainWindow(QtGui.QWidget):
             self.zoomMode = 'fitToWindow'
 
         self.loadImageFile()
-        self.refreshImage()
 
     def sortByName(self):
         # Because image_lst.currentImage is just a integer, after re-sort the list,
