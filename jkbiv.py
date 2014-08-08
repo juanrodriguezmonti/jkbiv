@@ -197,7 +197,9 @@ class MainWindow(QtGui.QWidget):
 
     def loadImageFile(self):
         self.filePath = self.image_lst.imageList[self.image_lst.currentImage]
+        self.fileName = os.path.relpath(self.filePath)
         self.image = QtGui.QPixmap(self.filePath)
+        self.imageResolution = "{} x {}".format(self.image.width(), self.image.height())
 
     def refreshImage(self):
         if self.zoomMode == 'fitToWindow':
@@ -213,19 +215,21 @@ class MainWindow(QtGui.QWidget):
                                             QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
             self.image_label.setPixmap(self.scaledImage)
         self.scaleNum = self.scaledImage.width() / self.image.width()
-        # 記得更新title的檔名
         self.updateInfoLabels()
+        # Update scale percentage
+        self.scalePercentage = "{percent:.0%}".format(percent=self.scaleNum)
+        # Update title text.
+        self.setWindowTitle("{} ({}) {}".format(self.fileName, self.imageResolution, self.scalePercentage))
 
     def updateInfoLabels(self):
         ### Information Label
         if self.ifShowInfoLabels:
             self.info_label.setText(
                 '''{}<br>
-                {} x {}
+                {}
                 {}'''\
-            .format(os.path.relpath(self.filePath),
-                    self.image.width(),
-                    self.image.height(),
+            .format(self.fileName,
+                    self.imageResolution,
                     self.genStatusLabels()))
             self.info_label.adjustSize()
             w=self.width()
@@ -246,31 +250,28 @@ class MainWindow(QtGui.QWidget):
         self.ifShowStatusLabels = not(self.ifShowStatusLabels)
         self.updateInfoLabels()
 
-    def scalePercentage(self):
-        return "{percent:.0%}".format(percent=self.scaleNum)
-
     def fitToWindow(self):
         self.zoomMode = 'fitToWindow'
-        self.sendNotify("Fit to Window (%s)" % self.scalePercentage(), 500)
         self.refreshImage()
+        self.sendNotify("Fit to Window (%s)" % self.scalePercentage, 500)
 
     def origianlSize(self):
         self.zoomMode = 'free'
         self.scaleNum = 1
-        self.sendNotify("Original Size (100%)", 500)
         self.refreshImage()
+        self.sendNotify("Original Size (100%)", 500)
 
     def zoomIn(self):
         self.zoomMode = 'free'
         self.scaleNum *= 1.1
-        self.sendNotify(self.scalePercentage(), 500)
         self.refreshImage()
+        self.sendNotify(self.scalePercentage, 500)
 
     def zoomOut(self):
         self.zoomMode = 'free'
         self.scaleNum *= 0.9
-        self.sendNotify(self.scalePercentage(), 500)
         self.refreshImage()
+        self.sendNotify(self.scalePercentage, 500)
 
     def toggleRememberZoomMode(self):
         self.rememberZoomMode = not(self.rememberZoomMode)
