@@ -61,13 +61,28 @@ class MainWindow(QtGui.QWidget):
         self.printer = QtGui.QPrinter()
 
         class ImageLabel(QtGui.QLabel):
-            def __init__(self, scrollAreaInstance):
+            def __init__(self, main_window_instance):
                 super(ImageLabel, self).__init__()
                 self.setStyleSheet("QLabel { background-color: #000; color: #eee}")
                 self.setAlignment(QtCore.Qt.AlignCenter)
-                self.scrollAreaInstance = scrollAreaInstance
+                self.main_window_instance = main_window_instance
                 # desktop = QtGui.QDesktopWidget()
                 # self.desktopSize = desktop.availableGeometry(desktop.primaryScreen())
+
+            def wheelEvent(self, event):
+                win=self.main_window_instance
+                hbar=win.scroll_area.horizontalScrollBar()
+                vbar=win.scroll_area.verticalScrollBar()
+                if mouseWheelBehavior == 'Navigate':
+                    if event.delta() > 0:
+                        win.prevImage()
+                    else:
+                        win.nextImage()
+                else:
+                    if event.delta() > 0:
+                         win.zoomIn()
+                    else:
+                         win.zoomOut()
 
             def mousePressEvent(self, event):
                 self.__mouseOriginalX = None
@@ -105,8 +120,8 @@ class MainWindow(QtGui.QWidget):
                     self.currentY = event.globalY()
 
                 if event.buttons() == QtCore.Qt.LeftButton:
-                    barX = self.scrollAreaInstance.horizontalScrollBar()
-                    barY = self.scrollAreaInstance.verticalScrollBar()
+                    barX = self.main_window_instance.scroll_area.horizontalScrollBar()
+                    barY = self.main_window_instance.scroll_area.verticalScrollBar()
                     barX.setValue(barX.value() - (self.currentX - self.__mouseOriginalX))
                     barY.setValue(barY.value() - (self.currentY - self.__mouseOriginalY))
 
@@ -117,7 +132,7 @@ class MainWindow(QtGui.QWidget):
 
 
         self.scroll_area = QtGui.QScrollArea()
-        self.image_label = ImageLabel(self.scroll_area)
+        self.image_label = ImageLabel(self)
         self.scroll_area.setStyleSheet("QLabel { background-color: #000; color: #eee}")
         self.scroll_area.setWidget(self.image_label)
 
