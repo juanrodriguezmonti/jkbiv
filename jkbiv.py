@@ -33,10 +33,10 @@ class ImageFileList(QtCore.QObject):
         # if argv exist, set dirPath according to it. Else, use getcwd()
         if len(sys.argv) > 1 and os.path.isfile(sys.argv[1]):
             self._dirPath = os.path.dirname(os.path.realpath(sys.argv[1]))
-            self.currentImage=self.imageList.index(os.path.abspath(sys.argv[1]))
+            self.currentIndex=self.imageList.index(os.path.abspath(sys.argv[1]))
         else:
             self._dirPath = os.getcwd()
-            self.currentImage=0  # 如果檔案不是圖檔該怎麼處理？或者有些檔案其實是圖檔但沒有副檔名？
+            self.currentIndex=0  # 如果檔案不是圖檔該怎麼處理？或者有些檔案其實是圖檔但沒有副檔名？
 
         self.genImagesList()
 
@@ -195,7 +195,7 @@ class MainWindow(QtGui.QWidget):
         self.refreshImage()
 
     def loadImageFile(self):
-        self.filePath = self.image_lst.imageList[self.image_lst.currentImage]
+        self.filePath = self.image_lst.imageList[self.image_lst.currentIndex]
         self.fileName = os.path.relpath(self.filePath)
         self.image = QtGui.QPixmap(self.filePath)
         self.imageResolution = "{} x {}".format(self.image.width(), self.image.height())
@@ -325,11 +325,11 @@ class MainWindow(QtGui.QWidget):
             self.scrollDown()
 
     def nextImage(self):
-        if 1 + self.image_lst.currentImage == len(self.image_lst.imageList):
-            self.image_lst.currentImage = 0
+        if 1 + self.image_lst.currentIndex == len(self.image_lst.imageList):
+            self.image_lst.currentIndex = 0
             self.sendNotify("Last document reached, continuing on first document.")
         else:
-            self.image_lst.currentImage += 1
+            self.image_lst.currentIndex += 1
 
         if not(self.rememberZoomMode):
             self.zoomMode = 'fitToWindow'
@@ -337,11 +337,11 @@ class MainWindow(QtGui.QWidget):
         self.loadImageFile()
 
     def prevImage(self):
-        if self.image_lst.currentImage == 0:
-            self.image_lst.currentImage = len(self.image_lst.imageList) - 1
+        if self.image_lst.currentIndex == 0:
+            self.image_lst.currentIndex = len(self.image_lst.imageList) - 1
             self.sendNotify("First document reached, continuing on last document.")
         else:
-            self.image_lst.currentImage -= 1
+            self.image_lst.currentIndex -= 1
 
         if not(self.rememberZoomMode):
             self.zoomMode = 'fitToWindow'
@@ -349,20 +349,20 @@ class MainWindow(QtGui.QWidget):
         self.loadImageFile()
 
     def sortByName(self):
-        # Because image_lst.currentImage is just a integer, after re-sort the list,
+        # Because image_lst.currentIndex is just a integer, after re-sort the list,
         # you will get wrong picture with the old integer.
-        filename=self.image_lst.imageList[self.image_lst.currentImage]
+        filename=self.image_lst.imageList[self.image_lst.currentIndex]
         self.image_lst.sortBy='Name'
         self.image_lst.genImagesList()
-        self.image_lst.currentImage = self.image_lst.imageList.index(filename)
+        self.image_lst.currentIndex = self.image_lst.imageList.index(filename)
         self.sendNotify("Sorting by Name")
         self.updateInfoLabels()
 
     def sortByTime(self):
-        filename=self.image_lst.imageList[self.image_lst.currentImage]
+        filename=self.image_lst.imageList[self.image_lst.currentIndex]
         self.image_lst.sortBy='Time'
         self.image_lst.genImagesList()
-        self.image_lst.currentImage = self.image_lst.imageList.index(filename)
+        self.image_lst.currentIndex = self.image_lst.imageList.index(filename)
         self.sendNotify("Sorting by Time")
         self.updateInfoLabels()
 
@@ -428,6 +428,23 @@ class MainWindow(QtGui.QWidget):
             return "<div align=right>" + " ".join(labels) + "</div>"
         else:
             return ""
+
+    def deleteFile(self):
+        msgBox = QtGui.QMessageBox()
+        msgBox.setText("Are you sure to <b>delete</b> this picture?<br>\
+        (Notice this action <b>cannot be undone!</b>)")
+        msgBox.setStandardButtons(QtGui.QMessageBox.Yes | QtGui.QMessageBox.Cancel)
+        msgBox.setDefaultButton(QtGui.QMessageBox.Cancel)
+        reply=msgBox.exec_()
+        if reply == QtGui.QMessageBox.Yes:
+            os.remove(self.filePath)
+            del self.image_lst.imageList[self.image_lst.currentIndex]
+            if len(self.image_lst.imageList) == self.image_lst.currentIndex:
+                self.image_lst.currentIndex = 0
+            self.loadImageFile()
+            self.sendNotify("File Deleted.")
+        else:
+            self.sendNotify("Canceled.")
         
 
 
