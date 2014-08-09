@@ -40,39 +40,49 @@ SUPPORTED_EXT = genSupportedExtensionList()
 
 # QListWidget
 class ImageFileList(QtCore.QObject):
-    def __init__(self):
+    def __init__(self, fullFileName):
+        "I don't check if your input path is valid. Input path should be an absolute one."
         super(ImageFileList, self).__init__()
 
         self.sortBy=CONFIG.sortBy
 
-        # if argv exist, set dirPath according to it. Else, use getcwd()
-        if len(sys.argv) > 1 and os.path.isfile(sys.argv[1]):
-            self._dirPath = os.path.dirname(os.path.realpath(sys.argv[1]))
-            self.currentIndex=self.imageList.index(os.path.abspath(sys.argv[1]))
+        # handle inputed fullFileName
+        if os.path.isdir(fullFileName):
+            self._dirPath = fullFileName
         else:
-            self._dirPath = os.getcwd()
-            self.currentIndex=0  # 如果檔案不是圖檔該怎麼處理？或者有些檔案其實是圖檔但沒有副檔名？
+            self._dirPath = os.path.dirname(fullFileName)
 
+        # gen imageList
         self.genImagesList()
+        # gen currentIndex
+        if os.path.isfile(fullFileName):
+            self.currentIndex = self.imageList.index(fullFileName)
+        elif os.path.isdir(fullFileName):
+            self.currentIndex=0
 
     def genImagesList(self):
+        "generate _dirPath, imageList"
         images = []
-        for extension in SUPPORTED_EXT:
-            pattern=os.path.join(self._dirPath, "*.%s" % extension)
+        for ext in SUPPORTED_EXT:
+            pattern=os.path.join(self._dirPath, "*.%s" % ext)
             images.extend(glob.glob(pattern))
         if self.sortBy == 'Name':
             images.sort(key=str.lower)
         elif self.sortBy == 'Time':
             images.sort(key=lambda x: os.path.getmtime(x))
-
-        self.imageList=images # [FIXME]如果當前目錄沒有任何圖片，就不要啟動app
+            
+        # If no picture file exists in path, exit the program.
+        if len(images) == 0:
+            sys.exit("The path doesn't have any picture.")
+        else:
+            self.imageList=images
 
 
 class MainWindow(QtGui.QWidget):
-    def __init__(self):
+    def __init__(self, imageFileList):
         super(MainWindow, self).__init__()
 
-        self.image_lst = ImageFileList()
+        self.image_lst = imageFileList
         self.printer = QtGui.QPrinter()
 
         class ImageLabel(QtGui.QLabel):
@@ -540,17 +550,30 @@ class RunShellCommandDialog(QtGui.QDialog):
         COMMANDS = list(set(COMMANDS))
                 
 
-# from subprocess import Popen
-# 
-# devnull = open(os.devnull, 'wb') # use this in python < 3.3
-# # python >= 3.3 has subprocess.DEVNULL
-# Popen(['nohup', 'script.sh'], stdout=devnull, stderr=devnull)
+
+# if argv exist, set dirPath according to it. Else, use getcwd()
+global image_file_list
+if len(sys.argv) > 1 and os.path.exists(sys.argv[1]):
+    if os.path.isfile(sys.argv[1]):
+        fileName, fileExt = os.path.splitext(sys.argv[1])
+        try:
+            SUPPORTED_EXT[fileExt]
+        except IndexError:
+        # if the input file is not a support image format (decide by extension)
+            sys.exit("This is not a supported image file format (or extension).")
+
+    # if the argv[1] is a FILE of DIR path:
+    image_file_list = ImageFileList(os.path.abspath(os.path.expanduser(sys.argv[1])))
+    
+else:
+    image_file_list = ImageFileList(os.path.abspath(os.getcwd()))
+    # [FIXME] How about a real image file, but without file extension?
 
 
 app = QtGui.QApplication(sys.argv)
 DESKTOP_HEIGHT = app.desktop().height()
 DESKTOP_WIDTH = app.desktop().width()
-main_window = MainWindow()
+main_window = MainWindow(image_file_list)
 main_window.show()
 app.exec_()
 
