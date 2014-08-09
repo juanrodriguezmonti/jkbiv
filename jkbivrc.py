@@ -21,6 +21,7 @@ keys=(
     ("b"             , "smartLeft"),
     ("Ctrl+d"        , "deleteFile"),
     ("!"             , "runShellCommand"),
+    ("Alt+w"         , "copyFilePath"),
     
     ("Ctrl+v"        , "nextImage"),
     ("Alt+v"         , "prevImage"),

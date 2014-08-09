@@ -249,10 +249,10 @@ class MainWindow(QtGui.QWidget):
         ### Information Label
         if self.ifShowInfoLabels:
             self.info_label.setText(
-                '''{}<br>
+                '''<span style='color:#ffaf5f'>[{}/{}]</span> {}<br>
                 {}
                 {}'''\
-            .format(self.fileName,
+            .format(self.image_lst.currentIndex + 1, len(self.image_lst.imageList), self.fileName,
                     self.imageResolution,
                     self.genStatusLabels()))
             self.info_label.adjustSize()
@@ -501,6 +501,17 @@ class MainWindow(QtGui.QWidget):
 
     def runShellCommandSynchronously(self):
         dialog = RunShellCommandDialog(self, True)
+
+    def duplicateWindow(self):
+        subprocess.Popen(["jkbiv", self.fullFileName],
+                         stdout=subprocess.DEVNULL,
+                         stderr=subprocess.DEVNULL)
+
+    def copyFilePath(self):
+        global app
+        app.clipboard().setText(self.fullFileName)
+        self.sendNotify("File Path Copied")
+        
     
 class RunShellCommandDialog(QtGui.QDialog):
     commandSignal = QtCore.Signal(str, bool)
@@ -548,6 +559,8 @@ class RunShellCommandDialog(QtGui.QDialog):
             if os.path.isdir(path):
                 COMMANDS.extend(os.listdir(path))
         COMMANDS = list(set(COMMANDS))
+
+        
                 
 
 
