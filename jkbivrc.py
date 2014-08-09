@@ -17,6 +17,7 @@ keys=(
     ("p"             , "smartUp"),
     ("f"             , "smartRight"),
     ("b"             , "smartLeft"),
+    ("Ctrl+d"        , "deleteFile"),
     
     ("Ctrl+v"        , "nextImage"),
     ("Alt+v"         , "prevImage"),
@@ -42,6 +43,7 @@ keys=(
     ("Shift+Down"    , "scrollDown"),
     ("i"             , "toggleInfoLabels"),
     ("Shift+i"       , "toggleStatusLabels"),
+    ("f2"       , "renameFile"),
 )
 
 ### Behavior of mouse scrolling, 'Navigate' or 'Zoom'
