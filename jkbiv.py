@@ -63,7 +63,6 @@ class MainWindow(QtGui.QWidget):
         class ImageLabel(QtGui.QLabel):
             def __init__(self, main_window_instance):
                 super(ImageLabel, self).__init__()
-                self.setStyleSheet("QLabel { background-color: #000; color: #eee}")
                 self.setAlignment(QtCore.Qt.AlignCenter)
                 self.main_window_instance = main_window_instance
                 # desktop = QtGui.QDesktopWidget()
@@ -152,7 +151,7 @@ class MainWindow(QtGui.QWidget):
         self.setLayout(layout)
 
         self.setWindowTitle("jkbiv")
-        self.setStyleSheet("QLabel { background-color: #000; color: #eee}")
+
         self.resize(500,400)
 
 #         self.status_bar = QtGui.QStatusBar(self)
@@ -195,9 +194,9 @@ class MainWindow(QtGui.QWidget):
         self.refreshImage()
 
     def loadImageFile(self):
-        self.filePath = self.image_lst.imageList[self.image_lst.currentIndex]
-        self.fileName = os.path.relpath(self.filePath)
-        self.image = QtGui.QPixmap(self.filePath)
+        self.fullFileName = self.image_lst.imageList[self.image_lst.currentIndex]
+        self.fileName = os.path.relpath(self.fullFileName)
+        self.image = QtGui.QPixmap(self.fullFileName)
         self.imageResolution = "{} x {}".format(self.image.width(), self.image.height())
         self.refreshImage()
 
@@ -437,7 +436,7 @@ class MainWindow(QtGui.QWidget):
         msgBox.setDefaultButton(QtGui.QMessageBox.Cancel)
         reply=msgBox.exec_()
         if reply == QtGui.QMessageBox.Yes:
-            os.remove(self.filePath)
+            os.remove(self.fullFileName)
             del self.image_lst.imageList[self.image_lst.currentIndex]
             if len(self.image_lst.imageList) == self.image_lst.currentIndex:
                 self.image_lst.currentIndex = 0
@@ -445,7 +444,22 @@ class MainWindow(QtGui.QWidget):
             self.sendNotify("File Deleted.")
         else:
             self.sendNotify("Canceled.")
-        
+
+    def renameFile(self):
+        dirPath = self.image_lst._dirPath
+        fileName, fileExt = os.path.splitext(self.fileName)
+        newFileName, ok = QtGui.QInputDialog.getText(self,
+                                                     "Rename",
+                                                     "Please input new filename:",
+                                                     QtGui.QLineEdit.Normal,
+                                                     fileName)
+        if ok and newFileName != '':
+            newFullFileName = os.path.join(dirPath, (newFileName + fileExt))
+            os.rename(self.fullFileName, newFullFileName)
+            self.fullFileName = newFullFileName
+            self.image_lst.imageList[self.image_lst.currentIndex] = newFullFileName
+            self.loadImageFile()
+            self.sendNotify("Renamed to " + newFileName)
 
 
 app = QtGui.QApplication(sys.argv)
