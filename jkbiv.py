@@ -1,9 +1,23 @@
 # -*- coding: utf-8 -*-
-import sys, os, glob, importlib.machinery
+import sys, os, glob, importlib.machinery, subprocess
 
-config_loader=importlib.machinery.SourceFileLoader("configFile", os.path.expanduser("~/.config/jkbivrc.py"))
-CONFIG = config_loader.load_module("configFile")
+CONFIG_PATH = os.path.expanduser("~/.config/jkbivrc.py")
+LAST_COMMAND = ""
 
+def loadConfigFile():
+    config_loader=importlib.machinery.SourceFileLoader("configFile", os.path.expanduser(CONFIG_PATH))
+    global CONFIG
+    CONFIG = config_loader.load_module("configFile")
+
+try: 
+    loadConfigFile()
+except FileNotFoundError:
+    if not os.path.exists(os.path.dirname(CONFIG_PATH)):
+        os.makedirs(os.path.dirname(CONFIG_PATH))
+    import shutil
+    shutil.copyfile("./jkbivrc.py", CONFIG_PATH)
+    loadConfigFile()
+    
 # try:
 #         from PySide import QtCore, QtGui
 # except ImportError:
