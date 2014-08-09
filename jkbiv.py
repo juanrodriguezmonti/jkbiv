@@ -3,6 +3,7 @@ import sys, os, glob, importlib.machinery, subprocess
 
 CONFIG_PATH = os.path.expanduser("~/.config/jkbivrc.py")
 LAST_COMMAND = ""
+COMMANDS = []
 
 def loadConfigFile():
     config_loader=importlib.machinery.SourceFileLoader("configFile", os.path.expanduser(CONFIG_PATH))
@@ -488,20 +489,28 @@ class MainWindow(QtGui.QWidget):
     def runShellCommand(self):
         dialog = RunShellCommandDialog(self, False)
 
+    def runShellCommandSynchronously(self):
+        dialog = RunShellCommandDialog(self, True)
+    
 class RunShellCommandDialog(QtGui.QDialog):
     commandSignal = QtCore.Signal(str, bool)
     def __init__(self, parentInstance, sync=False):
         super(RunShellCommandDialog, self).__init__()
         self.sync = sync        
 
+        if len(COMMANDS) == 0:
+            self.genCommandList()
+            print(len(COMMANDS))
+
         # completer + list model + line edit
         model = QtGui.QStringListModel()
-        model.setStringList(["comix", "gwenview"])
+        model.setStringList(COMMANDS)
         completer = QtGui.QCompleter()
         completer.setModel(model)
         label = QtGui.QLabel("Run shell command:")
         self.line_edit = QtGui.QLineEdit()
         self.line_edit.setCompleter(completer)
+        self.line_edit.setText(LAST_COMMAND)
         label.setBuddy(self.line_edit)
 
         self.button_box = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Ok | QtGui.QDialogButtonBox.Cancel)
@@ -522,6 +531,14 @@ class RunShellCommandDialog(QtGui.QDialog):
     def clickHandler(self):
         self.commandSignal.emit(self.line_edit.text(), self.sync)
         self.close()
+
+    def genCommandList(self):
+        global COMMANDS
+        for path in os.getenv('PATH').split(':'):
+            if os.path.isdir(path):
+                COMMANDS.extend(os.listdir(path))
+        COMMANDS = list(set(COMMANDS))
+                
 
 # from subprocess import Popen
 # 
