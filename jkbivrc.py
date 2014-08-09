@@ -53,10 +53,16 @@ keys=(
 # Behavior of mouse scrolling, 'Navigate' or 'Zoom'
 ####################################################################
 
-mouseWheelBehavior='Zoom'
+mouseWheelBehavior='Navigate'
 
 # Default values after startup.
 ####################################################################
+# Fullscreen after startup
+fullScreen=False
+
+# Default window size
+width=640
+height=480
 
 # If remember zoom mode after switching picture.
 rememberZoomMode=False

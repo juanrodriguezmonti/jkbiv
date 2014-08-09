@@ -97,16 +97,17 @@ class MainWindow(QtGui.QWidget):
                 win=self.main_window_instance
                 hbar=win.scroll_area.horizontalScrollBar()
                 vbar=win.scroll_area.verticalScrollBar()
-                if mouseWheelBehavior == 'Navigate':
-                    if event.delta() > 0:
-                        win.prevImage()
-                    else:
-                        win.nextImage()
-                else:
+                modifiers = QtGui.QApplication.keyboardModifiers()
+                if mouseWheelBehavior == 'Zoom' or modifiers == QtCore.Qt.ControlModifier:
                     if event.delta() > 0:
                          win.zoomIn()
                     else:
                          win.zoomOut()
+                else:
+                    if event.delta() > 0:
+                        win.prevImage()
+                    else:
+                        win.nextImage()
 
             def mousePressEvent(self, event):
                 self.__mouseOriginalX = None
@@ -177,7 +178,7 @@ class MainWindow(QtGui.QWidget):
 
         self.setWindowTitle("jkbiv")
 
-        self.resize(500,400)
+        self.resize(CONFIG.width, CONFIG.height)
 
 #         self.status_bar = QtGui.QStatusBar(self)
 #         self.setStatusBar(self.status_bar)
@@ -588,6 +589,12 @@ DESKTOP_HEIGHT = app.desktop().height()
 DESKTOP_WIDTH = app.desktop().width()
 main_window = MainWindow(image_file_list)
 main_window.show()
+
+if CONFIG.fullScreen:
+    main_window.showFullScreen()
+
 app.exec_()
+
+
 
 # print(main_window.image_lst.imageList)
