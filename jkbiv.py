@@ -475,6 +475,31 @@ class MainWindow(QtGui.QWidget):
             self.loadImageFile()
             self.sendNotify("Renamed to " + newFileName)
 
+    def runShellCommand(self, sync=False):
+        global LAST_COMMAND
+        pyRun = "call" if sync == True else "Popen"
+        completer = QtGui.QCompleter()
+        line_edit = QtGui.QLineEdit().Normal
+        command, ok = QtGui.QInputDialog.getText(self,
+                                                 "Run a Shell Command",
+                                                 "Shell Command (%s means filename):",
+                                                 line_edit,
+                                                 LAST_COMMAND
+                                             )
+        if ok and command != "":
+            eval("subprocess." + pyRun)([command, self.fullFileName],
+                                        stdout=subprocess.DEVNULL,
+                                        stderr=subprocess.DEVNULL)
+        LAST_COMMAND = command
+
+
+        
+# from subprocess import Popen
+# 
+# devnull = open(os.devnull, 'wb') # use this in python < 3.3
+# # python >= 3.3 has subprocess.DEVNULL
+# Popen(['nohup', 'script.sh'], stdout=devnull, stderr=devnull)
+
 
 app = QtGui.QApplication(sys.argv)
 DESKTOP_HEIGHT = app.desktop().height()
