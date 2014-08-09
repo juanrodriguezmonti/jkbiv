@@ -475,25 +475,54 @@ class MainWindow(QtGui.QWidget):
             self.loadImageFile()
             self.sendNotify("Renamed to " + newFileName)
 
-    def runShellCommand(self, sync=False):
+    @QtCore.Slot(str, bool)
+    def _runShellCommand(self, inputCommand, sync=False):
         global LAST_COMMAND
         pyRun = "call" if sync == True else "Popen"
-        completer = QtGui.QCompleter()
-        line_edit = QtGui.QLineEdit().Normal
-        command, ok = QtGui.QInputDialog.getText(self,
-                                                 "Run a Shell Command",
-                                                 "Shell Command (%s means filename):",
-                                                 line_edit,
-                                                 LAST_COMMAND
-                                             )
-        if ok and command != "":
-            eval("subprocess." + pyRun)([command, self.fullFileName],
+        if inputCommand != "":
+            eval("subprocess." + pyRun)([inputCommand, self.fullFileName],
                                         stdout=subprocess.DEVNULL,
                                         stderr=subprocess.DEVNULL)
-        LAST_COMMAND = command
+        LAST_COMMAND = inputCommand
 
+    def runShellCommand(self):
+        dialog = RunShellCommandDialog(self, False)
 
+class RunShellCommandDialog(QtGui.QDialog):
+    commandSignal = QtCore.Signal(str, bool)
+    def __init__(self, parentInstance, sync=False):
+        super(RunShellCommandDialog, self).__init__()
+        self.sync = sync        
+
+        # completer + list model + line edit
+        model = QtGui.QStringListModel()
+        model.setStringList(["comix", "gwenview"])
+        completer = QtGui.QCompleter()
+        completer.setModel(model)
+        label = QtGui.QLabel("Run shell command:")
+        self.line_edit = QtGui.QLineEdit()
+        self.line_edit.setCompleter(completer)
+        label.setBuddy(self.line_edit)
+
+        self.button_box = QtGui.QDialogButtonBox(QtGui.QDialogButtonBox.Ok | QtGui.QDialogButtonBox.Cancel)
         
+        # Oh Jesus look these bizarre Signals & Slots
+        self.button_box.accepted.connect(self.clickHandler)
+        self.commandSignal.connect(parentInstance._runShellCommand)
+        self.button_box.rejected.connect(self.close)
+        
+        layout=QtGui.QHBoxLayout()
+        layout.addWidget(label)
+        layout.addWidget(self.line_edit)
+        layout.addWidget(self.button_box)
+        self.setLayout(layout)
+        self.setWindowTitle("Run Shell Command")
+        self.exec_()
+
+    def clickHandler(self):
+        self.commandSignal.emit(self.line_edit.text(), self.sync)
+        self.close()
+
 # from subprocess import Popen
 # 
 # devnull = open(os.devnull, 'wb') # use this in python < 3.3

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
-### Key Bindings ###
+# Key Bindings
+####################################################################
+
 keys=(
     ("q"             , "close"),
     ("Right"         , "smartRight"),
@@ -18,6 +20,7 @@ keys=(
     ("f"             , "smartRight"),
     ("b"             , "smartLeft"),
     ("Ctrl+d"        , "deleteFile"),
+    ("!"             , "runShellCommand"),
     
     ("Ctrl+v"        , "nextImage"),
     ("Alt+v"         , "prevImage"),
@@ -43,14 +46,16 @@ keys=(
     ("Shift+Down"    , "scrollDown"),
     ("i"             , "toggleInfoLabels"),
     ("Shift+i"       , "toggleStatusLabels"),
-    ("f2"       , "renameFile"),
+    ("f2"            , "renameFile"),
 )
 
-### Behavior of mouse scrolling, 'Navigate' or 'Zoom'
+# Behavior of mouse scrolling, 'Navigate' or 'Zoom'
+####################################################################
 
 mouseWheelBehavior='Zoom'
 
-### Default values after startup. ###
+# Default values after startup.
+####################################################################
 
 # If remember zoom mode after switching picture.
 rememberZoomMode=False
@@ -64,3 +69,10 @@ ifShowStatusLabels=False
 # Sort by 'Name' or 'Time'.
 sortBy='Name'
 
+
+# Frequently used commands 
+####################################################################
+#
+frequentlyUsedCommands=['gimp',
+                        'convert',
+                        'gwenview']
