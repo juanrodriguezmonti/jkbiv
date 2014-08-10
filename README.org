@@ -1,0 +1,142 @@
+* jkbiv - Just KeyBoard Image Viewer
+
+A simple and handy image viewer, based on PyQt toolkit.
+
+#+BEGIN_QUOTE
+The original PyGTK version is also [[https://github.com/lzh9102/jkbiv][available]], which is by Timothy Lin.
+#+END_QUOTE
+
+
+* Why?
+
+Because all picture viewers on GNU/Linux I know don't satisfied my needs.
+
+* Features
+
+- Handy UI - Emacs / Vim flavored, customizable key-bindings.
+- Run shell command / external program on current file.
+- Delete / Rename current file.
+- Copy the file path of current image.
+- Sort files by name / time.
+- Remember zoom after switching image (fit to window / free)
+- Mouse support.
+- Information bar.
+- Fullscreen.
+
+* Customization
+
+The configuration file is in =~/.config/jkbivrc.py=.
+
+** Key Bindings & Commands
+
+Following is all available commands, and default key-bindings (categorized by key sequence style).
+
+#+BEGIN_QUOTE
+=C= means =Ctrl=, =M= means =Alt=.
+#+END_QUOTE
+
+If you want to customize them, notice that:
+
+    1. The key sequence format in configure file should follow [[http://qt-project.org/doc/qt-4.8/qkeysequence.html][Qt's]].
+    2. You can set multiple key-bindings for the same function, *but don't let (the same) key-binding duplicately or that key will not work at all.*
+    3. Don't forget commas!
+
+***  Navigation
+
+| Function Name | Description                                | Common   | Emacs       | Vi  |
+|---------------+--------------------------------------------+----------+-------------+-----|
+| ~nextImage~   | Next image                                 | ~PgDown~ | ~C-v~ ~M-n~ |     |
+| ~prevImage~   | Previous image                             | ~PgUp~   | ~M-v~ ~M-p~ |     |
+|---------------+--------------------------------------------+----------+-------------+-----|
+| ~smartDown~   | Auto decide scroll down or next image.     | ~Down~   | ~n~         | ~j~ |
+| ~smartUp~     | Auto decide scroll up or previous image.   | ~Up~     | ~p~         | ~k~ |
+| ~smartRight~  | Auto decide scroll right or next image.    | ~Right~  | ~f~         | ~l~ |
+| ~smartLeft~   | Auto decide scroll left or previous image. | ~Left~   | ~b~         | ~h~ |
+|---------------+--------------------------------------------+----------+-------------+-----|
+| ~scrollDown~  | Scroll down                                |          |             |     |
+| ~scrollUp~    | Scroll up                                  |          |             |     |
+| ~scrollRight~ | Scroll right                               |          |             |     |
+| ~scrollLeft~  | Scroll left                                |          |             |     |
+
+*** Zoom
+
+| Function Name  | Description                   | Common  |
+|----------------+-------------------------------+---------|
+| ~fitToWindow~  | Make image fit to window size | ~w~     |
+| ~origianlSize~ | Zoom to 1:1                   | ~1~ ~o~ |
+| ~zoomIn~       | Zoom in                       | ~=~     |
+| ~zoomOut~      | Zoom out                      | ~-~     |
+
+
+*** View
+| Function Name            | Description                              | Common |
+|--------------------------+------------------------------------------+--------|
+| ~toggleFullScreen~       | Toggle fullscreen                        | ~F~    |
+| ~toggleInfoLabels~       | Show info label for filename, size...etc | ~i~    |
+| ~toggleStatusLabels~     | Show functions currently enabled         | ~I~    |
+| ~toggleRememberZoomMode~ | Remember zoom mode after switching image | ~r~    |
+|--------------------------+------------------------------------------+--------|
+| ~sortSwitcher~           | Switch between sort by Name / Time       | ~s~    |
+| ~sortByName~             | Sort by file name.                       |        |
+| ~sortByTime~             | Sort by file modified time.              |        |
+
+*** File
+
+| Function Name     | Description                                    | Common    | Emacs             | vi   |
+|-------------------+------------------------------------------------+-----------+-------------------+------|
+| ~close~           | Quit /jkbiv/                                   | ~q~ ~Esc~ | ~C-x C-c~ ~C-x k~ | ~:q~ |
+|-------------------+------------------------------------------------+-----------+-------------------+------|
+| ~deleteFile~      | Delete current file (*Cannot be undone*)       | ~Del~     | ~D~               |      |
+| ~renameFile~      | Rename current file                            | ~F2~      | ~C-x C-q~         |      |
+| ~copyFilePath~    | Copy current file's path into clipboard        |           | ~M-w~             | ~@~  |
+| ~duplicateWindow~ | Open the same file with another /jkbiv/ window | ~N~       | ~C-c d~           | ~yy~ |
+  
+*** Shell Commands & External Programs
+
+| Function Name                  | Description                                                                                                          | Common |
+|--------------------------------+----------------------------------------------------------------------------------------------------------------------+--------|
+| ~runShellCommand~              | Run shell command on current file.                                                                                   | ~&~    |
+| ~runShellCommandSynchronously~ | Run shell command on current file synchronously. After the external program finished, /jkbiv/ will reload the image. | ~!~    |
+
+** Mouse Wheel Behavior
+
+Two options: ~Navigate~ or ~Zoom~.
+
+#+BEGIN_SRC python
+mouseWheelBehavior='Navigate'
+#+END_SRC
+
+** Default Settings After Startup
+
+*** Window Size
+
+#+BEGIN_SRC python
+# Fullscreen after startup
+fullScreen=False
+
+# Default window size
+width=640
+height=480
+#+END_SRC
+
+*** Misc
+
+#+BEGIN_SRC python
+# If remember zoom mode after switching picture.
+rememberZoomMode=False
+
+# If show the information labels of picture.
+ifShowInfoLabels=True
+
+# If show the status labels.
+ifShowStatusLabels=False
+
+# Sort by 'Name' or 'Time'.
+sortBy='Name'
+#+END_SRC
+
+* License
+
+WTFPL 2.0
+
+This program is free software. It comes without any warranty, to the extent permitted by applicable law. You can redistribute it and/or modify it under the terms of the Do What The Fuck You Want To Public License, Version 2, as published by Sam Hocevar. See http://www.wtfpl.net/ for more details. */
