@@ -494,8 +494,8 @@ class MainWindow(QtGui.QWidget):
         if inputCommand != "":
             listedCommand=[] # list
             for x in inputCommand.split(" "):
-                if x == "%s":
-                    listedCommand.append(self.fullFileName)
+                if "%s" in x:
+                    listedCommand.append(x.replace("%s", self.fullFileName))
                 else:
                     listedCommand.append(x)
                     
