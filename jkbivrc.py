@@ -5,6 +5,7 @@
 
 keys=(
     ("q"             , "close"),
+    ("Esc"           , "close"),
     ("Right"         , "smartRight"),
     ("Left"          , "smartLeft"),
     ("Up"            , "smartUp"),
@@ -13,25 +14,34 @@ keys=(
     ("PgUp"          , "prevImage"),
 
     # Emacser
-    ("Alt+p"         , "prevImage"),
+    ("Ctrl+v"        , "nextImage"),
+    ("Alt+v"         , "prevImage"),
     ("Alt+n"         , "nextImage"),
+    ("Alt+p"         , "prevImage"),
+    
     ("n"             , "smartDown"),
     ("p"             , "smartUp"),
     ("f"             , "smartRight"),
     ("b"             , "smartLeft"),
-    ("Ctrl+d"        , "deleteFile"),
-    ("!"             , "runShellCommand"),
-    ("Alt+w"         , "copyFilePath"),
     
-    ("Ctrl+v"        , "nextImage"),
-    ("Alt+v"         , "prevImage"),
-    ("Ctrl+x Ctrl+c" , "close"),
+    ("Ctrl+x, Ctrl+c", "close"),
+    ("Ctrl+x, k"     , "close"),
+    ("Shift+d"       , "deleteFile"),
+    ("Ctrl+x, Ctrl+q", "renameFile"),
+    ("Alt+w"         , "copyFilePath"),
+    ("Ctrl+c, d"     , "duplicateWindow"),
+    
+    ("!"             , "runShellCommandSynchronously"),
+    ("&"             , "runShellCommand"),
+    
 
     # Vimer
     ("l"             , "smartRight"),
     ("h"             , "smartLeft"),
     ("k"             , "smartUp"),
     ("j"             , "smartDown"),
+    ("y, y"          , "duplicateWindow"),
+    ("@"             , "copyFilePath"),
 
     
     ("s"             , "sortSwitcher"),
@@ -48,6 +58,7 @@ keys=(
     ("i"             , "toggleInfoLabels"),
     ("Shift+i"       , "toggleStatusLabels"),
     ("f2"            , "renameFile"),
+    ("Shift+n"       , "duplicateWindow"),
 )
 
 # Behavior of mouse scrolling, 'Navigate' or 'Zoom'
@@ -77,9 +88,3 @@ ifShowStatusLabels=False
 sortBy='Name'
 
 
-# Frequently used commands 
-####################################################################
-#
-frequentlyUsedCommands=['gimp',
-                        'convert',
-                        'gwenview']
