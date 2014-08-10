@@ -33,7 +33,6 @@ keys=(
     
     ("!"             , "runShellCommandSynchronously"),
     ("&"             , "runShellCommand"),
-    
 
     # Vimer
     ("l"             , "smartRight"),
@@ -49,6 +48,7 @@ keys=(
     ("="             , "zoomIn"),
     ("-"             , "zoomOut"),
     ("1"             , "origianlSize"),
+    ("o"             , "origianlSize"),
     ("w"             , "fitToWindow"),
     ("r"             , "toggleRememberZoomMode"),
     ("Shift+Right"   , "scrollRight"),

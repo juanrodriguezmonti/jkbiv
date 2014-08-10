@@ -41,7 +41,7 @@ If you want to customize them, notice that:
     2. You can set multiple key-bindings for the same function, *but don't let (the same) key-binding duplicately or that key will not work at all.*
     3. Don't forget commas!
 
-***  Navigation
+*** Navigation
 
 | Function Name | Description                                | Common   | Emacs       | Vi  |
 |---------------+--------------------------------------------+----------+-------------+-----|
@@ -66,7 +66,6 @@ If you want to customize them, notice that:
 | ~origianlSize~ | Zoom to 1:1                   | ~1~ ~o~ |
 | ~zoomIn~       | Zoom in                       | ~=~     |
 | ~zoomOut~      | Zoom out                      | ~-~     |
-
 
 *** View
 | Function Name            | Description                              | Common |
