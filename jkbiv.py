@@ -492,9 +492,21 @@ class MainWindow(QtGui.QWidget):
         global LAST_COMMAND
         pyRun = "call" if sync == True else "Popen"
         if inputCommand != "":
-            eval("subprocess." + pyRun)([inputCommand, self.fullFileName],
-                                        stdout=subprocess.DEVNULL,
-                                        stderr=subprocess.DEVNULL)
+            listedCommand=[] # list
+            for x in inputCommand.split(" "):
+                if x == "%s":
+                    listedCommand.append(self.fullFileName)
+                else:
+                    listedCommand.append(x)
+                    
+            if "%s" in inputCommand:
+                eval("subprocess." + pyRun)(listedCommand,
+                                            stdout=subprocess.DEVNULL,
+                                            stderr=subprocess.DEVNULL)
+            else:
+                eval("subprocess." + pyRun)([inputCommand, self.fullFileName],
+                                            stdout=subprocess.DEVNULL,
+                                            stderr=subprocess.DEVNULL)
         LAST_COMMAND = inputCommand
 
     def runShellCommand(self):
@@ -529,7 +541,7 @@ class RunShellCommandDialog(QtGui.QDialog):
         model.setStringList(COMMANDS)
         completer = QtGui.QCompleter()
         completer.setModel(model)
-        label = QtGui.QLabel("Run shell command:")
+        label = QtGui.QLabel("Run shell command (You can use %s for filename):")
         self.line_edit = QtGui.QLineEdit()
         self.line_edit.setCompleter(completer)
         self.line_edit.setText(LAST_COMMAND)
@@ -541,12 +553,14 @@ class RunShellCommandDialog(QtGui.QDialog):
         self.button_box.accepted.connect(self.clickHandler)
         self.commandSignal.connect(parentInstance._runShellCommand)
         self.button_box.rejected.connect(self.close)
-        
-        layout=QtGui.QHBoxLayout()
-        layout.addWidget(label)
-        layout.addWidget(self.line_edit)
-        layout.addWidget(self.button_box)
-        self.setLayout(layout)
+
+        horizontal_layout=QtGui.QHBoxLayout()
+        horizontal_layout.addWidget(self.line_edit)
+        horizontal_layout.addWidget(self.button_box)
+        main_layout=QtGui.QVBoxLayout()
+        main_layout.addWidget(label)
+        main_layout.addLayout(horizontal_layout)
+        self.setLayout(main_layout)
         self.setWindowTitle("Run Shell Command")
         self.exec_()
 
@@ -595,6 +609,3 @@ if CONFIG.fullScreen:
 
 app.exec_()
 
-
-
-# print(main_window.image_lst.imageList)
