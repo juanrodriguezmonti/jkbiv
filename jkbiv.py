@@ -234,8 +234,8 @@ class MainWindow(QtGui.QWidget):
         self.fullFileName = self.image_lst.imageList[self.image_lst.currentIndex]
         self.fileName = os.path.relpath(self.fullFileName)
         self.image = QtGui.QPixmap(self.fullFileName)
-        exif_data = Image.open(self.fullFileName)._getexif()
 
+        exif_data = Image.open(self.fullFileName)._getexif()
         if ORIENTATION_KEY in exif_data:
             orientation = exif_data[ORIENTATION_KEY]
             if orientation in ROTATE_VAR:

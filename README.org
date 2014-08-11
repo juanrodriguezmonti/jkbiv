@@ -7,9 +7,9 @@ The original PyGTK version is also [[https://github.com/lzh9102/jkbiv][available
 #+END_QUOTE
 
 
-* Why?
+** Why?
 
-Because all picture viewers on GNU/Linux I know don't satisfied my needs.
+Because all picture viewers on GNU/Linux I've known don't satisfied my needs.
 
 * Features
 
@@ -22,6 +22,12 @@ Because all picture viewers on GNU/Linux I know don't satisfied my needs.
 - Mouse support.
 - Information bar.
 - Fullscreen.
+
+* Requirements
+
+- =Python 3=
+- =PyQt4=
+- =PIL= or =Pillow=
 
 * Customization
 
