@@ -9,12 +9,13 @@ LAST_COMMAND = ""
 # All commands on system
 COMMANDS = []
 
-# Exif Orientation
+# Exif
 ORIENTATION_KEY=274
 ROTATE_VAR={
     3:180,
     6:90,
     8:270}
+CREATED_DATE_KEY=36868
 
 def loadConfigFile():
     config_loader=importlib.machinery.SourceFileLoader("configFile", os.path.expanduser(CONFIG_PATH))
@@ -234,6 +235,7 @@ class MainWindow(QtGui.QWidget):
         self.fullFileName = self.image_lst.imageList[self.image_lst.currentIndex]
         self.fileName = os.path.relpath(self.fullFileName)
         self.image = QtGui.QPixmap(self.fullFileName)
+        self.imageDate = ""
 
         try:
             exif_data = Image.open(self.fullFileName)._getexif()
@@ -243,6 +245,8 @@ class MainWindow(QtGui.QWidget):
                 # Translate raw orientation value into actual orientation degrees
                     angle = ROTATE_VAR[orientation]
                     self.image = self.image.transformed(QtGui.QTransform().rotate(angle))
+            if CREATED_DATE_KEY in exif_data:
+                self.imageDate = " | " + exif_data[CREATED_DATE_KEY]
         except:
             None
         
@@ -274,10 +278,10 @@ class MainWindow(QtGui.QWidget):
         if self.ifShowInfoLabels:
             self.info_label.setText(
                 '''<span style='color:#ffaf5f'>[{}/{}]</span> {}<br>
-                {}
+                {} {}
                 {}'''\
             .format(self.image_lst.currentIndex + 1, len(self.image_lst.imageList), self.fileName,
-                    self.imageResolution,
+                    self.imageResolution, self.imageDate,
                     self.genStatusLabels()))
             self.info_label.adjustSize()
             w=self.width()
