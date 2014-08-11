@@ -1,9 +1,20 @@
 # -*- coding: utf-8 -*-
 import sys, os, glob, importlib.machinery, subprocess
+from PIL import Image
 
 CONFIG_PATH = os.path.expanduser("~/.config/jkbivrc.py")
+
+# Shell command
 LAST_COMMAND = ""
+# All commands on system
 COMMANDS = []
+
+# Exif Orientation
+ORIENTATION_KEY=274
+ROTATE_VAR={
+    3:180,
+    6:90,
+    8:270}
 
 def loadConfigFile():
     config_loader=importlib.machinery.SourceFileLoader("configFile", os.path.expanduser(CONFIG_PATH))
@@ -223,6 +234,15 @@ class MainWindow(QtGui.QWidget):
         self.fullFileName = self.image_lst.imageList[self.image_lst.currentIndex]
         self.fileName = os.path.relpath(self.fullFileName)
         self.image = QtGui.QPixmap(self.fullFileName)
+        exif_data = Image.open(self.fullFileName)._getexif()
+
+        if ORIENTATION_KEY in exif_data:
+            orientation = exif_data[ORIENTATION_KEY]
+            if orientation in ROTATE_VAR:
+                # Translate raw orientation value into actual orientation degrees
+                angle = ROTATE_VAR[orientation]
+                self.image = self.image.transformed(QtGui.QTransform().rotate(angle))
+        
         self.imageResolution = "{} x {}".format(self.image.width(), self.image.height())
         self.refreshImage()
 
