@@ -235,13 +235,16 @@ class MainWindow(QtGui.QWidget):
         self.fileName = os.path.relpath(self.fullFileName)
         self.image = QtGui.QPixmap(self.fullFileName)
 
-        exif_data = Image.open(self.fullFileName)._getexif()
-        if ORIENTATION_KEY in exif_data:
-            orientation = exif_data[ORIENTATION_KEY]
-            if orientation in ROTATE_VAR:
+        try:
+            exif_data = Image.open(self.fullFileName)._getexif()
+            if ORIENTATION_KEY in exif_data:
+                orientation = exif_data[ORIENTATION_KEY]
+                if orientation in ROTATE_VAR:
                 # Translate raw orientation value into actual orientation degrees
-                angle = ROTATE_VAR[orientation]
-                self.image = self.image.transformed(QtGui.QTransform().rotate(angle))
+                    angle = ROTATE_VAR[orientation]
+                    self.image = self.image.transformed(QtGui.QTransform().rotate(angle))
+        except:
+            None
         
         self.imageResolution = "{} x {}".format(self.image.width(), self.image.height())
         self.refreshImage()
