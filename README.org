@@ -21,6 +21,7 @@ Because never a picture viewer on GNU/Linux I've known satisfy my needs.
 - Remember zoom after switching image (fit to window / free)
 - Mouse support.
 - Information bar.
+- Auto rotate by =Orientation= in EXIF.
 - Fullscreen.
 
 * Requirements
