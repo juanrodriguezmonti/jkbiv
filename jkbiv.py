@@ -541,6 +541,7 @@ class MainWindow(QtGui.QWidget):
 
     def runShellCommandSynchronously(self):
         dialog = RunShellCommandDialog(self, True)
+        self.loadImageFile()
 
     def duplicateWindow(self):
         subprocess.Popen(["jkbiv", self.fullFileName],
