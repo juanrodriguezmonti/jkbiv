@@ -238,13 +238,13 @@ class MainWindow(QtGui.QWidget):
         self.refreshImage()
 
     def loadImageFile(self):
-        self.directoryPath = self.image_lst.imageList[self.image_lst.currentIndex]
-        self.fileName = os.path.basename(self.directoryPath)
-        self.image = QtGui.QPixmap(self.directoryPath)
+        self.fullFileName = self.image_lst.imageList[self.image_lst.currentIndex]
+        self.fileName = os.path.basename(self.fullFileName)
+        self.image = QtGui.QPixmap(self.fullFileName)
         self.imageDate = ""
 
         try:
-            exif_data = Image.open(self.directoryPath)._getexif()
+            exif_data = Image.open(self.fullFileName)._getexif()
             if ORIENTATION_KEY in exif_data:
                 orientation = exif_data[ORIENTATION_KEY]
                 if orientation in ROTATE_VAR:
@@ -495,7 +495,7 @@ class MainWindow(QtGui.QWidget):
         msgBox.setDefaultButton(QtGui.QMessageBox.Cancel)
         reply=msgBox.exec_()
         if reply == QtGui.QMessageBox.Yes:
-            os.remove(self.directoryPath)
+            os.remove(self.fullFileName)
             del self.image_lst.imageList[self.image_lst.currentIndex]
             if len(self.image_lst.imageList) == self.image_lst.currentIndex:
                 self.image_lst.currentIndex = 0
