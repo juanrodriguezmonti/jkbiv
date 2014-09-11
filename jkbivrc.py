@@ -42,7 +42,7 @@ keys=(
     ("y, y"          , "duplicateWindow"),
     ("@"             , "copyFilePath"),
 
-    
+    ("Delete"        , "deleteFile"),    
     ("s"             , "sortSwitcher"),
     ("Shift+f"       , "toggleFullScreen"),
     ("="             , "zoomIn"),
