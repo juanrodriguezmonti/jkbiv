@@ -53,6 +53,10 @@ def genSupportedExtensionList():
     return [str(x)[2:-1] for x in formats]
 
 SUPPORTED_EXT = genSupportedExtensionList()
+# Lowercase and remove duplicated
+SUPPORTED_EXT = (list(set([x.lower() for x in SUPPORTED_EXT])))
+# Add the same but upcased extensions.
+SUPPORTED_EXT = [x.upper() for x in SUPPORTED_EXT] + SUPPORTED_EXT
 
 # QListWidget
 class ImageFileList(QtCore.QObject):
