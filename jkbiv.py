@@ -497,6 +497,9 @@ class MainWindow(QtGui.QWidget):
         if reply == QtGui.QMessageBox.Yes:
             os.remove(self.fullFileName)
             del self.image_lst.imageList[self.image_lst.currentIndex]
+            if len(self.image_lst.imageList) == 0:
+                self.close()
+                return None
             if len(self.image_lst.imageList) == self.image_lst.currentIndex:
                 self.image_lst.currentIndex = 0
             self.loadImageFile()
