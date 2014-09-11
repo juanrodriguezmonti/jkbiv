@@ -30,5 +30,5 @@ uninstall:
 	rm -f ${ICON_DIR}/48x48/apps/jkbiv.png
 	rm -f ${ICON_DIR}/256x256/apps/jkbiv.png
 	@echo
-	@echo "Stardict-flashcard has been uninstalled from your system."
+	@echo "jkbiv has been uninstalled from your system."
 

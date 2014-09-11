@@ -53,25 +53,22 @@ SUPPORTED_EXT = genSupportedExtensionList()
 
 # QListWidget
 class ImageFileList(QtCore.QObject):
-    def __init__(self, fullFileName):
-        """I don't check the validation of input path.
-        Input path should be an absolute one."""
+    def __init__(self, directoryPath, fileName=None):
+        """I won't check the validation of input path.
+        Input path should be an absolute path."""
         super(ImageFileList, self).__init__()
 
         self.sortBy=CONFIG.sortBy
 
-        # handle inputed fullFileName
-        if os.path.isdir(fullFileName):
-            self._dirPath = fullFileName
-        else:
-            self._dirPath = os.path.dirname(fullFileName)
-
+        # handle inputed directoryPath
+        self._dirPath = directoryPath
+        
         # gen imageList
         self.genImagesList()
         # gen currentIndex
-        if os.path.isfile(fullFileName):
-            self.currentIndex = self.imageList.index(fullFileName)
-        elif os.path.isdir(fullFileName):
+        if fileName:
+            self.currentIndex = self.imageList.index(os.path.join(directoryPath, fileName))
+        elif os.path.isdir(directoryPath):
             self.currentIndex=0
 
     def genImagesList(self):
@@ -234,13 +231,13 @@ class MainWindow(QtGui.QWidget):
         self.refreshImage()
 
     def loadImageFile(self):
-        self.fullFileName = self.image_lst.imageList[self.image_lst.currentIndex]
-        self.fileName = os.path.relpath(self.fullFileName)
-        self.image = QtGui.QPixmap(self.fullFileName)
+        self.directoryPath = self.image_lst.imageList[self.image_lst.currentIndex]
+        self.fileName = os.path.basename(self.directoryPath)
+        self.image = QtGui.QPixmap(self.directoryPath)
         self.imageDate = ""
 
         try:
-            exif_data = Image.open(self.fullFileName)._getexif()
+            exif_data = Image.open(self.directoryPath)._getexif()
             if ORIENTATION_KEY in exif_data:
                 orientation = exif_data[ORIENTATION_KEY]
                 if orientation in ROTATE_VAR:
@@ -491,7 +488,7 @@ class MainWindow(QtGui.QWidget):
         msgBox.setDefaultButton(QtGui.QMessageBox.Cancel)
         reply=msgBox.exec_()
         if reply == QtGui.QMessageBox.Yes:
-            os.remove(self.fullFileName)
+            os.remove(self.directoryPath)
             del self.image_lst.imageList[self.image_lst.currentIndex]
             if len(self.image_lst.imageList) == self.image_lst.currentIndex:
                 self.image_lst.currentIndex = 0
@@ -616,18 +613,24 @@ class RunShellCommandDialog(QtGui.QDialog):
 # - File path
 # - Directory path
 global image_file_list
-if len(sys.argv) > 1 and os.path.exists(sys.argv[1]):
-    if os.path.isfile(sys.argv[1]):
-        fileName, fileExt = os.path.splitext(sys.argv[1])
+
+global ARGV_1
+if len(sys.argv) > 1:
+    ARGV_1 = os.path.abspath(os.path.expanduser(sys.argv[1]))
+    if os.path.isfile(ARGV_1):
+        fileNameWithoutExt, fileExt = os.path.splitext(ARGV_1)
         try:
             fileExt in SUPPORTED_EXT
         except IndexError:
         # if the input file is not a support image format (decide by extension)
             sys.exit("This is not a supported image file format (or extension).")
 
-        image_file_list = ImageFileList(os.path.abspath(os.path.expanduser(sys.argv[1])))
-    else:
-        image_file_list = ImageFileList(os.getcwd())
+        directoryPath   = os.path.dirname(ARGV_1)
+        fileName        = os.path.basename(ARGV_1)
+        image_file_list = ImageFileList(directoryPath, fileName)
+        
+    elif os.path.isdir(ARGV_1):
+        image_file_list = ImageFileList(ARGV_1)
 else:
     image_file_list = ImageFileList(os.getcwd())
     # [FIXME] How about a real image file, but without file extension?
@@ -635,8 +638,11 @@ else:
 
 app = QtGui.QApplication(sys.argv)
 
-ICON_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'icons/')
-
+if os.path.exists('icons/'):
+    ICON_PATH = 'icons/'
+else:
+    ICON_PATH = '/usr/share/jkbiv/icons/'
+    
 app_icon = QtGui.QIcon()
 app_icon.addFile(ICON_PATH + '16.png', QtCore.QSize(16,16))
 app_icon.addFile(ICON_PATH + '22.png', QtCore.QSize(22,22))
