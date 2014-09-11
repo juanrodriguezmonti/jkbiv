@@ -283,10 +283,10 @@ class MainWindow(QtGui.QWidget):
         ### Information Label
         if self.ifShowInfoLabels:
             self.info_label.setText(
-                '''<span style='color:#ffaf5f'>[{}/{}]</span> {}<br>
-                {} {}
+                '''{}<br>
+                [{}/{}] {} {}
                 {}'''\
-            .format(self.image_lst.currentIndex + 1, len(self.image_lst.imageList), self.fileName,
+            .format(self.fileName, self.image_lst.currentIndex + 1, len(self.image_lst.imageList),
                     self.imageResolution, self.imageDate,
                     self.genStatusLabels()))
             self.info_label.adjustSize()
