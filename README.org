@@ -26,9 +26,24 @@ Because never a picture viewer on GNU/Linux I've known satisfy my needs.
 
 * Requirements
 
+- Un*x-like OS
 - =Python 3=
 - =PyQt4=
 - =PIL= or =Pillow=
+
+* Installation
+
+#+BEGIN_QUOTE
+`make` is required for install `jkbiv` on your system.
+#+END_QUOTE
+
+Download the repository, then install with:
+
+: sudo make install
+
+`uninstall` also available:
+
+: sudo make uninstall
 
 * Customization
 
