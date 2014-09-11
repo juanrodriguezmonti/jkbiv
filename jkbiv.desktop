@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Name=jkbiv
+GenericName=jkbiv
+Comment=Just Keyboard Image Viewer.
+Exec=jkbiv %n
+Terminal=false
+Icon=jkbiv
+StartupNotify=true
+Categories=Graphics;RasterGraphics;Viewer;
+MimeType=image/bmp;image/gif;image/jpeg;image/jpg;image/pjpeg;image/png;image/tiff;image/x-bmp;image/x-pcx;image/x-png;image/x-portable-anymap;image/x-portable-bitmap;image/x-portable-graymap;image/x-portable-pixmap;image/x-tga;image/x-xbitmap;inode/directory;image/x-ico;image/x-xpixmap;image/x-webp;

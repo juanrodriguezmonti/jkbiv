@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import sys, os, glob, importlib.machinery, subprocess
 from PIL import Image
@@ -53,7 +54,8 @@ SUPPORTED_EXT = genSupportedExtensionList()
 # QListWidget
 class ImageFileList(QtCore.QObject):
     def __init__(self, fullFileName):
-        "I don't check if your input path is valid. Input path should be an absolute one."
+        """I don't check the validation of input path.
+        Input path should be an absolute one."""
         super(ImageFileList, self).__init__()
 
         self.sortBy=CONFIG.sortBy
@@ -603,30 +605,45 @@ class RunShellCommandDialog(QtGui.QDialog):
                 COMMANDS.extend(os.listdir(path))
         COMMANDS = list(set(COMMANDS))
 
-        
-                
 
 
 # if argv exist, set dirPath according to it. Else, use getcwd()
+
+# [FIXME] argument can be:
+# - None
+# - Filename
+# - Directory path
+# - File path
+# - Directory path
 global image_file_list
 if len(sys.argv) > 1 and os.path.exists(sys.argv[1]):
     if os.path.isfile(sys.argv[1]):
         fileName, fileExt = os.path.splitext(sys.argv[1])
         try:
-            SUPPORTED_EXT[fileExt]
+            fileExt in SUPPORTED_EXT
         except IndexError:
         # if the input file is not a support image format (decide by extension)
             sys.exit("This is not a supported image file format (or extension).")
 
-    # if the argv[1] is a FILE of DIR path:
-    image_file_list = ImageFileList(os.path.abspath(os.path.expanduser(sys.argv[1])))
-    
+        image_file_list = ImageFileList(os.path.abspath(os.path.expanduser(sys.argv[1])))
+    else:
+        image_file_list = ImageFileList(os.getcwd())
 else:
-    image_file_list = ImageFileList(os.path.abspath(os.getcwd()))
+    image_file_list = ImageFileList(os.getcwd())
     # [FIXME] How about a real image file, but without file extension?
 
 
 app = QtGui.QApplication(sys.argv)
+
+ICON_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'icons/')
+
+app_icon = QtGui.QIcon()
+app_icon.addFile(ICON_PATH + '16.png', QtCore.QSize(16,16))
+app_icon.addFile(ICON_PATH + '22.png', QtCore.QSize(22,22))
+app_icon.addFile(ICON_PATH + '48.png', QtCore.QSize(48,48))
+app_icon.addFile(ICON_PATH + '256.png', QtCore.QSize(256,256))
+app.setWindowIcon(app_icon)
+
 DESKTOP_HEIGHT = app.desktop().height()
 DESKTOP_WIDTH = app.desktop().width()
 main_window = MainWindow(image_file_list)
