@@ -29,7 +29,10 @@ except FileNotFoundError:
     if not os.path.exists(os.path.dirname(CONFIG_PATH)):
         os.makedirs(os.path.dirname(CONFIG_PATH))
     import shutil
-    shutil.copyfile("./jkbivrc.py", CONFIG_PATH)
+    if os.path.exists("./jkbivrc.py"):
+        shutil.copyfile("./jkbivrc.py", CONFIG_PATH)
+    else:
+        shutil.copyfile("/usr/share/jkbiv/jkbivrc.py", CONFIG_PATH)
     loadConfigFile()
     
 # try:
