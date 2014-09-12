@@ -81,14 +81,15 @@ class ImageFileList(QtCore.QObject):
     def genImagesList(self):
         "generate _dirPath, imageList"
         images = []
-        for ext in SUPPORTED_EXT:
-            pattern=os.path.join(self._dirPath, "*.%s" % ext)
-            images.extend(glob.glob(pattern))
+        for file in os.listdir(self._dirPath):
+            for ext in SUPPORTED_EXT:
+                if file.endswith(ext):
+                    images.append(os.path.join(self._dirPath, file))
         if self.sortBy == 'Name':
             images.sort(key=str.lower)
         elif self.sortBy == 'Time':
             images.sort(key=lambda x: os.path.getmtime(x))
-            
+
         # If no picture file exists in path, exit the program.
         if len(images) == 0:
             sys.exit("The path doesn't have any picture.")
